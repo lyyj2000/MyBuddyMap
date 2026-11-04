@@ -213,7 +213,9 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 
 
 <section id="panel">
-    <div id="mobile-handle" style="display: none; width: 50px; height: 5px; background: #D1D5DB; border-radius: 10px; margin: 10px auto; cursor: pointer;"></div>
+        <div id="mobile-handle" style="display: none; padding: 15px; cursor: pointer; text-align: center; width: 100%; box-sizing: border-box;">
+        <div style="width: 50px; height: 5px; background: #D1D5DB; border-radius: 10px; margin: 0 auto; pointer-events: none;"></div>
+    </div>
 
     <div class="panel-content">
       <div class="header">
@@ -791,6 +793,16 @@ if (mobileHandle && mobilePanel) {
         mobilePanel.classList.toggle('expanded');
     });
 }
+
+    // --- Mobile Panel Toggle Logic ---
+    const mobileHandle = document.getElementById('mobile-handle');
+    const mobilePanel = document.getElementById('panel');
+    if (mobileHandle && mobilePanel) {
+        mobileHandle.addEventListener('click', () => {
+            console.log("Handle tapped!"); 
+            mobilePanel.classList.toggle('expanded');
+        });
+    }
 
 function initLocation() {
   if (!navigator.geolocation) return;
