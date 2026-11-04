@@ -1300,11 +1300,7 @@ function initLocation() {
 setTimeout(() => { map.invalidateSize(); }, 200);
 setTimeout(initLocation, 1000);
 
-
-            if (e.target === pricingModal) pricingModal.style.display = 'none';
-        });
-    }
-});// --- Pricing Guide Logic ---
+// --- Pricing Guide Logic ---
 document.addEventListener('DOMContentLoaded', () => {
     const pricingBtn = document.getElementById('pricing-btn');
     const pricingModal = document.getElementById('pricing-modal');
