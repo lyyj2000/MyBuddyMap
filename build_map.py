@@ -1300,52 +1300,63 @@ function initLocation() {
 setTimeout(() => { map.invalidateSize(); }, 200);
 setTimeout(initLocation, 1000);
 
+
 // --- Pricing Guide Logic ---
-document.addEventListener('DOMContentLoaded', () => {
-    const pricingBtn = document.getElementById('pricing-btn');
-    const pricingModal = document.getElementById('pricing-modal');
-    const closePricingBtn = document.getElementById('close-pricing');
-    const pricingContent = document.getElementById('pricing-content');
+document.addEventListener('DOMContentLoaded', function() {
+    var pricingBtn = document.getElementById('pricing-btn');
+    var pricingModal = document.getElementById('pricing-modal');
+    var closePricingBtn = document.getElementById('close-pricing');
+    var pricingContent = document.getElementById('pricing-content');
 
     if (pricingBtn && DATA.pricing_data) {
-        pricingBtn.addEventListener('click', () => {
-            let htmlStr = "";
-            for (const [vetId, prices] of Object.entries(DATA.pricing_data)) {
-                const clinic = DATA.clinics.find(c => c.id === vetId || c.original_id === vetId);
-                const clinicName = clinic ? clinic.name : vetId;
-                htmlStr += `<h3 style="color: #333; margin-top: 20px; border-bottom: 2px solid #388E3C; padding-bottom: 5px;">${clinicName}</h3>`;
-                htmlStr += `<table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px;">`;
-                htmlStr += `<tr style="background: #f1f8e9; text-align: left;">
-                                <th style="padding: 8px; border: 1px solid #c8e6c9;">Service</th>
-                                <th style="padding: 8px; border: 1px solid #c8e6c9;">Species / Condition</th>
-                                <th style="padding: 8px; border: 1px solid #c8e6c9;">Price (SGD)</th>
-                            </tr>`;
-                
-                prices.forEach(p => {
-                    let condition = [p.species, p.condition].filter(Boolean).join(" - ");
-                    if (!condition) condition = "All";
-                    let priceStr = p.price;
-                    if (p.type === "From") priceStr = "From $" + priceStr;
-                    else if (p.type === "Range") priceStr = "Range: $" + priceStr;
-                    else if (priceStr && !priceStr.includes("$")) priceStr = "$" + priceStr;
+        pricingBtn.addEventListener('click', function() {
+            var htmlStr = "";
+            for (var vetId in DATA.pricing_data) {
+                if (DATA.pricing_data.hasOwnProperty(vetId)) {
+                    var prices = DATA.pricing_data[vetId];
+                    var clinic = DATA.clinics.find(function(c) { return c.id === vetId || c.original_id === vetId; });
+                    var clinicName = clinic ? clinic.name : vetId;
 
-                    htmlStr += `<tr>
-                                    <td style="padding: 8px; border: 1px solid #e0e0e0;">${p.service}</td>
-                                    <td style="padding: 8px; border: 1px solid #e0e0e0;">${condition}</td>
-                                    <td style="padding: 8px; border: 1px solid #e0e0e0; font-weight: bold; color: #388E3C;">${priceStr}</td>
-                                </tr>`;
-                });
-                htmlStr += `</table>`;
+                    htmlStr += '<h3 style="color: #333; margin-top: 20px; border-bottom: 2px solid #388E3C; padding-bottom: 5px;">' + clinicName + '</h3>';
+                    htmlStr += '<table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px;">';
+                    htmlStr += '<tr style="background: #f1f8e9; text-align: left;">';
+                    htmlStr += '<th style="padding: 8px; border: 1px solid #c8e6c9;">Service</th>';
+                    htmlStr += '<th style="padding: 8px; border: 1px solid #c8e6c9;">Species / Condition</th>';
+                    htmlStr += '<th style="padding: 8px; border: 1px solid #c8e6c9;">Price (SGD)</th>';
+                    htmlStr += '</tr>';
+
+                    for (var i = 0; i < prices.length; i++) {
+                        var p = prices[i];
+                        var condition = [p.species, p.condition].filter(Boolean).join(" - ");
+                        if (!condition) condition = "All";
+                        var priceStr = p.price;
+                        
+                        if (p.type === "From") priceStr = "From $" + priceStr;
+                        else if (p.type === "Range") priceStr = "Range: $" + priceStr;
+                        else if (priceStr && priceStr.indexOf("$") === -1) priceStr = "$" + priceStr;
+
+                        htmlStr += '<tr>';
+                        htmlStr += '<td style="padding: 8px; border: 1px solid #e0e0e0;">' + p.service + '</td>';
+                        htmlStr += '<td style="padding: 8px; border: 1px solid #e0e0e0;">' + condition + '</td>';
+                        htmlStr += '<td style="padding: 8px; border: 1px solid #e0e0e0; font-weight: bold; color: #388E3C;">' + priceStr + '</td>';
+                        htmlStr += '</tr>';
+                    }
+                    htmlStr += '</table>';
+                }
             }
             pricingContent.innerHTML = htmlStr;
             pricingModal.style.display = 'flex';
         });
 
-        closePricingBtn.addEventListener('click', () => {
+        closePricingBtn.addEventListener('click', function() {
             pricingModal.style.display = 'none';
         });
 
-        window.addEventListener('click', (e) => {
+        window.addEventListener('click', function(e) {
+            if (e.target === pricingModal) pricingModal.style.display = 'none';
+        });
+    }
+});
 </script>
 
 <div id="pricing-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
@@ -1361,8 +1372,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
-'''
+"""
 
 if __name__ == "__main__":
     build()
