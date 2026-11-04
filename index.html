@@ -151,10 +151,46 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 #map-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1A1A1A; color: #fff; padding: 12px 24px; border-radius: 99px; font-size: 14px; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none; text-align: center; }
 
 #map { margin-left: 360px; }
+/* --- MOBILE RESPONSIVE LAYOUT --- */
 @media (max-width: 768px) {
-  #panel { width: 100%; bottom: 50%; border-right: none; border-bottom: 1px solid #EAEAEA; }
-  #map { margin-left: 0; margin-top: 50vh; }
-  .bottom-bar { bottom: 60%; }
+    #panel {
+        width: 100%;
+        top: auto;
+        bottom: 0;
+        height: 50vh; /* Panel takes up bottom half */
+        border-right: none;
+        border-top: 1px solid #E5E7EB;
+        border-radius: 20px 20px 0 0; /* Rounded corners like a bottom sheet */
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+        z-index: 2000;
+    }
+    
+    #map {
+        margin-left: 0;
+        height: 50vh; /* Map takes up top half */
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
+
+    .bottom-bar {
+        bottom: 50vh; /* Float just above the panel */
+        width: 90%;
+        left: 5%;
+        border-radius: 12px;
+    }
+
+    /* Make the pricing modal look better on mobile */
+    #pricing-modal > div {
+        width: 95% !important;
+        padding: 15px !important;
+        max-height: 85vh !important;
+    }
+    
+    /* Make buttons easier to tap */
+    .service-card, .pill, #pricing-btn {
+        padding: 14px !important;
+    }
 }
 
 /* THE GREY FILTER FOR ONEMAP */
@@ -558,7 +594,7 @@ function updateVisibility() {
           show = map.distance(centre, m.marker.getLatLng()) <= radius;
         }
     }
-    
+
     // Final check: Hide if rating is below the slider, but ALWAYS show emergencies
     if (show && !isEmergency && typeof minRating !== 'undefined' && minRating > 3) {
         const placeRating = parseFloat(c.rating) || 0;
