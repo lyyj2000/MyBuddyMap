@@ -157,27 +157,36 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
         width: 100%;
         top: auto;
         bottom: 0;
-        height: 50vh; /* Panel takes up bottom half */
+        height: 25vh; /* 1/4 of the screen */
         border-right: none;
         border-top: 1px solid #E5E7EB;
-        border-radius: 20px 20px 0 0; /* Rounded corners like a bottom sheet */
+        border-radius: 20px 20px 0 0;
         box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
         z-index: 2000;
+        transition: height 0.3s ease-in-out; /* Smooth slide effect */
+    }
+    
+    /* When the user taps the handle, it expands to 80% */
+    #panel.expanded {
+        height: 80vh; 
     }
     
     #map {
         margin-left: 0;
-        height: 50vh; /* Map takes up top half */
+        height: 75vh;
         position: absolute;
         top: 0;
         width: 100%;
     }
 
+    /* Hide the search area button on mobile */
     .bottom-bar {
-        bottom: 50vh; /* Float just above the panel */
-        width: 90%;
-        left: 5%;
-        border-radius: 12px;
+        display: none !important;
+    }
+
+    /* Show the drag handle */
+    #mobile-handle {
+        display: block !important;
     }
 
     /* Make the pricing modal look better on mobile */
@@ -204,7 +213,9 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 
 
 <section id="panel">
-  <div class="panel-content">
+    <div id="mobile-handle" style="display: none; width: 50px; height: 5px; background: #D1D5DB; border-radius: 10px; margin: 10px auto; cursor: pointer;"></div>
+
+    <div class="panel-content">
       <div class="header">
           <a href="#">
               <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
@@ -771,6 +782,15 @@ DATA.clinics.forEach(c => {
 
 updateVisibility();
 if (unresolved) console.log("Unresolved coords: " + unresolved);
+
+// --- Mobile Panel Toggle Logic ---
+const mobileHandle = document.getElementById('mobile-handle');
+const mobilePanel = document.getElementById('panel');
+if (mobileHandle && mobilePanel) {
+    mobileHandle.addEventListener('click', () => {
+        mobilePanel.classList.toggle('expanded');
+    });
+}
 
 function initLocation() {
   if (!navigator.geolocation) return;
