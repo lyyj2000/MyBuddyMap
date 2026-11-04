@@ -336,7 +336,7 @@ function pinIcon(c, st) {
   let isEmergency = c.ecat === "E1_CONFIRMED_24_7";
   
   if (isEmergency) {
-      return L.divIcon({ className: "custom-pin emergency-pin", html: `<img src="pin-emergency.png" class="pin-img" />`, iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
+      return L.divIcon({ className: "custom-pin emergency-pin", html: `<img src="Pin-emergency.png" class="pin-img" />`, iconSize: [36, 36], iconAnchor: [18, 36], popupAnchor: [0, -36] });
   }
   
   if (catMatch === "Groomer") imgName = "pin-groomer.png";
