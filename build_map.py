@@ -820,7 +820,7 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
               Parks
           </button>
       </div>
-      
+
       <div class="section-label" style="margin-top: 10px;">RATING FILTER</div>
 <div class="radius-box" style="padding-bottom: 20px; margin-bottom: 0; border: none; box-shadow: none; padding-left: 0; padding-right: 0;">
     <h4 style="margin-bottom: 10px; font-size: 13px; color: #1A1A1A;">Minimum Rating: <span id="ratingVal" style="color: #10B981;">3★ & Above</span></h4>
@@ -1320,11 +1320,15 @@ setTimeout(initLocation, 1000);
     var ratingVal = document.getElementById('ratingVal');
     if (ratingSlider && ratingVal) {
         ratingSlider.addEventListener('input', function(e) {
-            var minRating = parseFloat(e.target.value);
+            // REMOVED 'var' here so it updates the global variable
+            minRating = parseFloat(e.target.value); 
+            
             ratingVal.textContent = (minRating > 3) ? minRating.toFixed(1) + "★ & Above" : "3★ & Above";
             
-            // If you have a function that filters the map based on minRating, call it here:
-            // if (typeof updateVisibility === 'function') updateVisibility();
+            // Uncommented this so the map actually redraws the pins!
+            if (typeof updateVisibility === 'function') {
+                updateVisibility(); 
+            }
         });
     }
 
