@@ -1,0 +1,439 @@
+ID,Name,Category,Excel Rating,API Rating,Excel Reviews,API Reviews
+MBV-0001,AAVC - ANIMAL & AVIAN VETERINARY CLINIC,Vet,3.9,3.9,411,419
+MBV-0002,ACACIA VET & SURGERY,Vet,4.6,4.6,187,186
+MBV-0003,ACE VET CARE,Vet,4.8,4.8,117,128
+MBV-0004,ADVANCED VETCARE (OUTRAM ROAD),Vet,4.9,4.9,293,402
+MBV-0005,ADVANCED VETCARE (JALAN PARI BURONG / BEDOK),Vet,4.3,4.3,1576,1639
+MBV-0006,ADVANCED VETCARE @ BALESTIER,Vet,4.7,4.7,363,367
+MBV-0007,ADVANCED VETCARE VETERINARY CENTRE (BALMORAL),Vet,4.9,4.9,101,102
+MBV-0008,ALLPETS & AQUALIFE VETERINARY CLINIC,Vet,4.2,4.2,408,427
+MBV-0010,AMBER VETERINARY PRACTICE PTE LTD,Vet,4.3,4.3,211,230
+MBV-0011,ANIMAL MEDICAL CENTRE(VET@RV),Vet,3.6,3.5,90,90
+MBV-0013,ANIMAL WELLNESS REFERRAL CENTRE PTE LTD,Vet,4.0,4,84,88
+MBV-0014,ANIMAL WORLD VETERINARY CLINIC,Vet,4.3,4.3,228,238
+MBV-0015,APEX VETERINARY CLINIC,Vet,4.7,4.7,273,286
+MBV-0016,APEX VETERINARY CLINIC,Vet,5.0,5,7,24
+MBV-0017,APEX VETERINARY MEDICAL CENTRE PTE LTD PUNGGOL,Vet,4.2,4.1,111,118
+MBV-0018,ATLAS VETERINARY CLINIC & SURGERY,Vet,4.9,4.9,384,400
+MBV-0019,AVH ANIMAL ARK VETERINARY GROUP,Vet,4.5,4.6,298,361
+MBV-0020,AVH ANIMAL ARK VETERINARY GROUP (SPRINGLEAF),Vet,4.6,4.6,237,254
+MBV-0021,BARKWAY PET HEALTH PTE. LTD.,Vet,4.6,4.6,238,245
+MBV-0022,BEECROFT ANIMAL SPECIALIST AND EMERGENCY HOSPITAL,Vet,3.8,3.8,427,455
+MBV-0023,BLUEWATER VET ACUPUNCTURE AND REHABILITATION,Vet,4.9,4.9,134,154
+MBV-0024,BRIGHTON VET CARE (BUKIT TIMAH),Vet,4.6,4.6,158,178
+MBV-0025,BRIGHTON VET CARE (KATONG),Vet,4.6,4.6,151,186
+MBV-0026,BRIGHTON VET CARE (SERANGOON GARDEN),Vet,4.6,4.6,318,355
+MBV-0027,CANOPY VETERINARY CENTRE,Vet,4.6,4.6,185,202
+MBV-0028,CANOPY VETERINARY CENTRE (TENGAH),Vet,4.8,4.9,13,15
+MBV-0029,CARE VETERINARY CLINIC PTE LTD,Vet,4.4,4.4,136,139
+MBV-0030,CLINIC FOR PETS,Vet,4.0,3.9,290,301
+MBV-0031,CLOVER VET,Vet,4.8,4.8,48,56
+MBV-0032,COMPANION ANIMAL SURGERY PTE LTD,Vet,4.0,4,590,591
+MBV-0033,DR PAWS VET CARE,Vet,4.8,4.8,139,145
+MBV-0034,EDMOND TAN VETERINARY SURGERY,Vet,4.2,4.2,60,62
+MBV-0035,EVERVET VETERINARY CLINIC,Vet,4.7,4.7,111,137
+MBV-0036,EVERVET VETERINARY CLINIC PTE LTD,Vet,4.5,4.5,375,391
+MBV-0037,FRANKEL VETERINARY CENTRE,Vet,4.2,4.3,242,242
+MBV-0039,FURIENDS VETERINARY CLINIC,Vet,4.7,4.7,310,324
+MBV-0040,FURRYTAILS VETERINARY CLINIC PTE LTD,Vet,4.7,4.7,197,200
+MBV-0041,GAIA VETERINARY CENTRE (JALAN BESAR),Vet,4.5,4.5,530,545
+MBV-0042,GAIA VETERINARY CENTRE (PARKSUITES),Vet,4.8,4.7,108,132
+MBV-0043,GENESIS VETERINARY CLINIC,Vet,4.6,4.6,345,360
+MBV-0044,GENTLE OAK VETERINARY CLINIC,Vet,4.5,4.5,360,361
+MBV-0045,HILLSIDE VETERINARY SURGERY,Vet,4.3,4.3,354,364
+MBV-0046,HOPE VETERINARY CARE,Vet,4.3,4.3,258,262
+MBV-0047,ISLAND VETERINARY CLINIC,Vet,4.6,4.6,512,609
+MBV-0048,JAMES TAN VETERINARY CENTRE PTE LTD,Vet,3.8,3.8,167,170
+MBV-0049,JIREH VETERINARY CLINIC PTE LTD,Vet,4.5,4.5,175,177
+MBV-0050,KAI VETS PTE LTD,Vet,4.7,4.7,152,171
+MBV-0051,KIN VETERINARY CLINIC,Vet,4.7,4.7,186,203
+MBV-0052,LANDON VETERINARY SPECIALIST HOSPITAL,Vet,4.4,4.5,218,246
+MBV-0054,MARANATHA VETERINARY CLINIC,Vet,4.5,4.4,46,50
+MBV-0055,MONSTER PET VET,Vet,4.4,4.4,241,244
+MBV-0056,MOUNT PLEASANT ANIMAL MEDICAL CENTRE (BEDOK),Vet,4.5,4.5,235,240
+MBV-0057,MOUNT PLEASANT ANIMAL MEDICAL CENTRE (CLEMENTI),Vet,4.2,4.2,245,248
+MBV-0058,MOUNT PLEASANT ANIMAL MEDICAL CENTRE (FARRER),Vet,4.6,4.5,215,216
+MBV-0059,MOUNT PLEASANT VETERINARY CENTRE (GELENGGANG),Vet,4.2,4.2,515,524
+MBV-0060,MOUNT PLEASANT VETERINARY CENTRE (EAST),Vet,4.5,4.5,255,260
+MBV-0061,MOUNT PLEASANT VETERINARY CENTRE (YISHUN),Vet,4.3,4.3,250,255
+MBV-0063,MY FAMILY VET CLINIC AND SURGERY PTE LTD,Vet,3.3,3.3,535,538
+MBV-0064,NAM SANG VETERINARY CLINIC PTE LTD,Vet,4.2,4.3,45,44
+MBV-0065,NAMLY VETERINARY SURGERY PTE LTD,Vet,4.8,4.8,204,212
+MBV-0066,OASIS VET,Vet,4.6,4.7,160,163
+MBV-0067,OHANA VETCARE,Vet,4.7,4.1,164,335
+MBV-0068,OMNIVET,Vet,4.7,4.9,43,115
+MBV-0069,P.A.W (PEOPLE ANIMAL WELLNESS) VETERINARY CENTRE PTE LTD,Vet,4.2,4.4,65,90
+MBV-0070,PASSION VETERINARY CLINIC,Vet,4.3,4.3,98,106
+MBV-0071,PAWS & CLAWS VETERINARY SURGERY,Vet,4.3,4.2,84,96
+MBV-0072,PAWS & CLAWS VETERINARY SURGERY,Vet,4.9,4.5,134,357
+MBV-0073,PET CARE CENTRE AND CLINIC,Vet,4.1,4,59,61
+MBV-0074,PET CLINIC PTE LTD,Vet,4.6,4.6,124,129
+MBV-0075,PET SPACE (SINGAPORE) PTE LTD,Vet,4.0,4.1,278,300
+MBV-0076,PETS AVENUE VETERINARY CLINIC (BEAUTY WORLD),Vet,4.3,4.3,155,173
+MBV-0077,PETS AVENUE VETERINARY CLINIC (FARRER),Vet,4.5,4.5,218,225
+MBV-0078,PETS AVENUE VETERINARY CLINIC (RIVER VALLEY),Vet,4.4,4.5,132,147
+MBV-0079,PETS AVENUE VETERINARY CLINIC (UPPER THOMSON),Vet,4.7,4.7,192,200
+MBV-0080,CHIRON VETERINARY REFERRALS,Vet,5.0,5,63,76
+MBV-0081,POINT VETERINARY SURGERY,Vet,3.3,2.4,3,5
+MBV-0082,REHABVET CLINIC,Vet,4.8,4.8,221,260
+MBV-0083,SINGAPORE EQUINE COMMUNITY VETERINARY CLINIC,Vet,0.0,4.6,0,42
+MBV-0084,SINGAPORE VETERINARY (SINGVET) ANIMAL CLINIC BEAUTY WORLD,Vet,4.5,4.6,22,42
+MBV-0085,SINGAPORE VETERINARY (SINGVET) ANIMAL CLINIC PTE LTD,Vet,4.2,4.6,287,42
+MBV-0086,SORA VET,Vet,4.7,4.7,67,74
+MBV-0087,SPCA COMMUNITY ANIMAL CLINIC,Vet,4.4,4.4,760,762
+MBV-0088,SPRING VETERINARY CARE,Vet,4.2,4.2,268,274
+MBV-0089,SPRING VETERINARY CARE PUNGGOL,Vet,3.9,3.9,297,301
+MBV-0090,STARS VETERINARY CLINIC (HOUGANG VILLAGE),Vet,4.5,3.7,175,10
+MBV-0091,STARS VETERINARY CLINIC PTE LTD,Vet,3.8,3.8,138,141
+MBV-0092,THE ANIMAL CLINIC,Vet,4.3,4.3,395,405
+MBV-0093,THE ANIMAL CLINIC (KATONG BRANCH),Vet,4.5,4.5,193,197
+MBV-0094,THE ANIMAL DOCTORS,Vet,4.1,4.1,425,441
+MBV-0095,THE ANIMAL DOCTORS (TIONG BAHRU),Vet,4.4,4.4,125,134
+MBV-0096,THE CAT VET,Vet,4.8,4.8,97,102
+MBV-0097,THE EYE SPECIALIST FOR ANIMALS,Vet,4.4,4.4,130,140
+MBV-0098,THE GENTLE VET,Vet,4.6,4.6,148,157
+MBV-0099,THE JOYOUS VET PTE LTD,Vet,3.6,3.6,159,162
+MBV-0100,TOWN VETS ANIMAL CLINIC PTE LTD,Vet,4.7,4.6,164,170
+MBV-0101,THE VET WARD,Vet,5.0,5,8,15
+MBV-0102,THE VETERINARY CLINIC (HOLLAND VILLAGE),Vet,4.6,4.6,30,31
+MBV-0103,THE VETERINARY CLINIC @ TAMPINES PTE LTD (TAMPINES),Vet,4.3,4.2,199,203
+MBV-0104,THE VISITING VETS CLINIC,Vet,4.8,4.8,211,213
+MBV-0105,TOA PAYOH VETS PTE LTD,Vet,4.2,4.2,196,199
+MBV-0107,TP ANIMAL CLINIC & WELLNESS CENTRE,Vet,4.6,4.6,65,69
+MBV-0108,UNITED VETERINARY CLINIC PTE LTD,Vet,3.9,3.9,263,272
+MBV-0109,VES HOSPITAL,Vet,3.9,3.9,433,461
+MBV-0110,VET AFFINITY PTE LTD,Vet,4.4,4.3,178,188
+MBV-0111,VET CENTRAL,Vet,4.5,4.5,279,284
+MBV-0112,VET CENTRAL (SWAN LAKE) PTE LTD,Vet,4.8,4.8,66,78
+MBV-0113,VET PRACTICE PTE LTD (LORONG KILAT),Vet,4.1,4.1,174,177
+MBV-0114,VET PRACTICE PTE LTD (HOLLAND CLOSE),Vet,4.2,4.2,54,56
+MBV-0115,VETMEDIC ANIMAL CLINIC AND SURGERY,Vet,4.7,4.7,155,172
+MBV-0116,VETS FOR LIFE ANIMAL CLINIC (TANJONG KATONG),Vet,4.5,4.5,339,379
+MBV-0118,VETS FOR LIFE ANIMAL CLINIC (RIVER VALLEY),Vet,4.6,4.6,188,214
+MBV-0119,VETS FOR PETS (LENGKOK BAHRU),Vet,4.3,4.2,29,32
+MBV-0120,VETS FOR PETS PTE LTD,Vet,3.8,3.8,278,292
+MBV-0121,VETSNOW,Vet,5.0,4.9,11,43
+MBV-0123,WESTSIDE VETERINARY EMERGENCY AND REFERRAL HOSPITAL,Vet,4.2,4.3,281,313
+MBV-0124,WOODGROVE VETERINARY SERVICES PTE LTD,Vet,4.1,4.2,142,161
+LOC_0,Animal Arts Academy (Serangoon Gardens),Groomer,0.0,4.5,0,198
+LOC_1,Pawpy Kisses Pet Shop & Grooming,Groomer,0.0,4.9,0,685
+LOC_2,Animal Arts Academy (VivoCity),Groomer,0.0,4.4,0,54
+LOC_3,Bubbly Petz (Eco-Ethical Grooming),Groomer,0.0,4.5,0,77
+LOC_4,Dollhouse Pets,Groomer,0.0,4.6,0,144
+LOC_5,Medical Grooming Centre,Groomer,0.0,4.2,0,96
+LOC_6,Fur Flow (Jalan Serene),Groomer,0.0,4.8,0,40
+LOC_7,Pet Lovers Centre (Holland Village),Groomer,0.0,4.2,0,145
+LOC_8,Doggylicious Studio,Groomer,0.0,4.7,0,288
+LOC_9,Sopra Ginza (Bukit Timah),Groomer,0.0,4.4,0,42
+LOC_10,The Blep Club,Groomer,0.0,4.9,0,484
+LOC_11,Surrpaws Pet Shop & Grooming,Groomer,0.0,4.8,0,47
+LOC_12,The Grooming Table,Groomer,0.0,4.6,0,116
+LOC_13,Pawpy Kisses Pet Shop & Pet Grooming Services,Groomer,0.0,4.9,0,685
+LOC_14,Just4Pets Grooming - Holland Village,Groomer,0.0,4.8,0,121
+LOC_15,Cloud Pet Grooming and Daycare Service (Sunset Way),Groomer,0.0,4.8,0,50
+LOC_16,June's Pet House,Groomer,0.0,4.8,0,189
+LOC_17,Suds & Scissors Pet Parlour,Groomer,0.0,4.8,0,120
+LOC_18,Hachi by Tokyo,Groomer,0.0,4.8,0,263
+LOC_19,Pawsitive Petcare,Groomer,0.0,4.5,0,47
+LOC_20,Bubbly Petz (Eco-Ethical Grooming),Groomer,0.0,4.5,0,77
+LOC_21,The Snoopy Spot,Groomer,0.0,5,0,119
+LOC_22,Sopra Ginza (Bukit Timah),Groomer,0.0,4.4,0,42
+LOC_23,The Collar Club (Bukit Timah),Groomer,0.0,5,0,115
+LOC_24,Mewtants & Woofs,Groomer,0.0,4.8,0,390
+LOC_25,Fluffy Hearts Pets & Dogs Grooming,Groomer,0.0,4.9,0,137
+LOC_26,Grooming Oasis,Groomer,0.0,5,0,105
+LOC_27,Fur Flow by Animal Arts Academy,Groomer,0.0,4.8,0,40
+LOC_28,FUR: A Vetreska Pet Store,Groomer,0.0,4.9,0,426
+LOC_29,Inspiration School Of Pet Grooming,Groomer,0.0,4.8,0,24
+LOC_30,Dog Haven Salon & Academy,Groomer,0.0,4.9,0,83
+LOC_31,Pet Master Grooming,Groomer,0.0,4.8,0,705
+LOC_32,The promised Nekoland,Groomer,0.0,5,0,7
+LOC_33,Supergroomers Pets Academy Pte Ltd,Groomer,0.0,5,0,57
+LOC_34,Petz Central,Groomer,0.0,4.5,0,28
+LOC_35,Fur & Whiskers Passionate Grooming,Groomer,0.0,4.9,0,210
+LOC_36,The Pet Stylist Salon,Groomer,0.0,4.5,0,35
+LOC_37,Barking Good,Groomer,0.0,4.8,0,48
+LOC_38,Pretty Paws,Groomer,0.0,5,0,5
+LOC_39,Lishinu Pet Salon,Groomer,0.0,4.6,0,69
+LOC_40,The Pet Academy Studio,Groomer,0.0,4.3,0,28
+LOC_41,The Dog Spa,Groomer,0.0,4.9,0,29
+LOC_42,Furry Lifestyle,Groomer,0.0,4.6,0,40
+LOC_43,Wagging Tails Salon,Groomer,0.0,5,0,168
+LOC_44,The Paws Room,Groomer,0.0,4.9,0,109
+LOC_45,Curfyland Pet Grooming,Groomer,0.0,4.7,0,42
+LOC_46,Snob Ark Pet Salon,Groomer,0.0,5,0,150
+LOC_47,Dog Salon Momo,Groomer,0.0,4.9,0,29
+LOC_48,Nekomori Jln Malu Malu (Cat-Only Specialist),Groomer,0.0,4.8,0,39
+LOC_49,Pawtraits Pte Ltd,Groomer,0.0,4.6,0,97
+LOC_50,The Pets Workshop,Groomer,0.0,4.8,0,445
+LOC_51,Pet Loft,Groomer,0.0,4.9,0,184
+LOC_52,Art of Pets Grooming School & Salon,Groomer,0.0,4.8,0,40
+LOC_53,Ohana Singapaws,Groomer,0.0,4.9,0,128
+LOC_54,The Furrville Salon,Groomer,0.0,4.5,0,108
+LOC_55,Studio Fluff,Groomer,0.0,4.8,0,27
+LOC_56,The Pets Workshop (Clarke Quay),Groomer,0.0,4.7,0,143
+LOC_57,Cuts By T.trimmer,Groomer,0.0,4.8,0,111
+LOC_58,Beyond Paws,Groomer,0.0,4.8,0,100
+LOC_59,Fluffy Furries,Groomer,0.0,5,0,89
+LOC_60,Petizen Pet Grooming Salon,Groomer,0.0,4.8,0,34
+LOC_61,Happy Paw Ark,Groomer,0.0,4.9,0,93
+LOC_62,Secret Pets Depot,Groomer,0.0,4.4,0,15
+LOC_63,Big Paws Small Paws,Groomer,0.0,5,0,191
+LOC_64,Cozy Paws SG,Groomer,0.0,4.2,0,9
+LOC_65,Top Dog Grooming,Groomer,0.0,5,0,119
+LOC_66,The Dirty Dog Hairstyle,Groomer,0.0,5,0,31
+LOC_67,Pampered Paws,Groomer,0.0,4.8,0,59
+LOC_68,Paws & Claws Deluxe,Groomer,0.0,4.2,0,96
+LOC_70,The Grooming Room,Groomer,0.0,4.6,0,116
+LOC_71,The Dog’s Parlour,Groomer,0.0,5,0,21
+LOC_72,Grooming To Perfection,Groomer,0.0,4.8,0,263
+LOC_73,The Pet Sanctuary,Groomer,0.0,5,0,874
+LOC_74,Elite Pet Styling,Groomer,0.0,4.9,0,685
+LOC_75,MAD About Grooming!,Groomer,0.0,4.9,0,181
+LOC_76,The Waggers’ Den,Groomer,0.0,5,0,26
+LOC_77,Pawky Pawly,Groomer,0.0,5,0,320
+LOC_78,Fluffy Paradise Grooming & Spa,Groomer,0.0,4.7,0,88
+LOC_79,Wagnwhiskers Pet Grooming,Groomer,0.0,4.9,0,31
+LOC_80,LAVOPET,Groomer,0.0,5,0,49
+LOC_81,Fursclass Pet Grooming,Groomer,0.0,4.9,0,210
+LOC_82,Furvely Pet Salon,Groomer,0.0,4,0,125
+LOC_83,Cloud Pet Grooming & Spa Therapy,Groomer,0.0,5,0,70
+LOC_84,The Pet Stylist Studio (Pasir Ris),Groomer,0.0,4.8,0,155
+LOC_85,Bubble Pet Spa,Groomer,0.0,5,0,28
+LOC_87,Pawfection Specialist,Groomer,0.0,4.5,0,47
+LOC_88,Nekomori (Outram Cat-Only Studio),Groomer,0.0,4.7,0,291
+LOC_89,The Grooming Lab,Groomer,0.0,4.8,0,155
+LOC_90,The Dog’s Parlour (Marymount),Groomer,0.0,4.6,0,144
+LOC_91,Fursclass Pet Grooming (Hougang),Groomer,0.0,4.9,0,210
+LOC_92,Grooming To Perfection (Ghim Moh),Groomer,0.0,4.8,0,263
+LOC_93,The Pet Sanctuary (Changi),Groomer,0.0,5,0,874
+LOC_94,The Loving Touch Pet Grooming,Groomer,0.0,4.7,0,82
+LOC_95,Barkway Pet Salon,Groomer,0.0,4.6,0,245
+LOC_96,Grooming Gallery,Groomer,0.0,3.9,0,87
+LOC_97,Pawsitive Vibes Grooming Studio,Groomer,0.0,4.5,0,47
+LOC_98,The Trim Bar,Groomer,0.0,4.7,0,102
+LOC_99,Snip & Clip Pet Grooming,Groomer,0.0,3.4,0,248
+LOC_100,The Pampered Pawlor,Groomer,0.0,4.8,0,34
+LOC_101,Furry Tail Grooming,Groomer,0.0,4,0,125
+LOC_102,Mane & Tail Pet Studio,Groomer,0.0,4.8,0,445
+LOC_103,The Scissor Hands Salon,Groomer,0.0,4.9,0,296
+LOC_123,Wildseed Cafe at The Garage,Restaurant,4.6,4.6,0,1890
+LOC_124,Canopy HortPark,Restaurant,4.1,4.1,0,2066
+LOC_125,The Urban Hideout,Restaurant,4.4,4.4,0,553
+LOC_126,Under Der Linden,Restaurant,4.3,4.3,0,820
+LOC_127,Lola's Cafe (Holland Village),Restaurant,4.3,4.3,0,743
+LOC_128,The Dempsey Project,Restaurant,4.5,4.5,0,4061
+LOC_129,The Brewing Ground,Restaurant,4.5,4.5,0,1036
+LOC_130,Fireplace by Bedrock,Restaurant,4.7,4.7,0,1241
+LOC_131,Surrey Hills Grocer (VivoCity),Restaurant,4.6,4.6,0,1512
+LOC_132,Open Farm Community,Restaurant,4.2,4.2,0,2202
+LOC_133,Tiong Bahru Bakery (Safari),Restaurant,4.1,4.1,0,851
+LOC_134,Brewerkz (One Fullerton),Restaurant,4.5,4.5,0,1706
+LOC_135,Publico Ristorante,Restaurant,4.3,4.3,0,3440
+LOC_136,Super Loco (Robertson Quay),Restaurant,4.5,4.5,0,3527
+LOC_137,Tanjong Beach Club,Restaurant,4.4,4.4,0,3929
+LOC_138,Coastes,Restaurant,3.9,3.9,0,2836
+LOC_139,Privé (Keppel Bay),Restaurant,4.3,4.3,0,2639
+LOC_140,The Coastal Settlement,Restaurant,4.2,4.2,0,2622
+LOC_141,Nassim Hill Bakery Bistro,Restaurant,4.3,4.3,0,1656
+LOC_142,Bee's Knees at The Garage,Restaurant,4.0,4,0,1840
+LOC_143,Canopy Changi City Point,Restaurant,4.5,4.5,0,871
+LOC_144,Wheeler's Estate,Restaurant,4.1,4.1,0,4070
+LOC_145,The Summerhouse,Restaurant,4.3,4.3,0,1713
+LOC_146,RedDot Brewhouse (Dempsey),Restaurant,4.6,4.6,0,3189
+LOC_147,Baker & Cook (Core Centre),Restaurant,4.4,4.4,0,1566
+LOC_148,Huber's Bistro,Restaurant,4.3,4.3,0,1078
+LOC_149,Jimmy Monkey Cafe,Restaurant,4.3,4.3,0,802
+LOC_150,Colbar (Colonial Bar),Restaurant,4.1,4.1,0,1419
+LOC_151,Wired Monkey,Restaurant,4.7,4.7,0,649
+LOC_152,Common Man Coffee Roasters (Martin Rd),Restaurant,4.4,4.4,0,3095
+LOC_153,Chock Full of Beans,Restaurant,4.2,4.2,0,822
+LOC_154,Little Island Brewing Co (Changi),Restaurant,4.4,4.4,0,2029
+LOC_155,The Bark Cafe,Restaurant,4.1,4.1,0,1364
+LOC_156,Merci Marcel (Tiong Bahru),Restaurant,4.7,4.7,0,4049
+LOC_157,Tiona Bistro,Restaurant,4.6,4.5,0,393
+LOC_158,The Plain Jane,Restaurant,4.3,4.3,0,346
+LOC_159,Dutch Colony Coffee Co. (Frankel),Restaurant,4.3,4.3,0,1558
+LOC_160,The Garden Slug,Restaurant,4.3,4.3,0,593
+LOC_161,Atmosphere Bistro,Restaurant,4.5,4.2,0,712
+LOC_162,Siri House,Restaurant,4.4,4.4,0,593
+LOC_163,Menage Cafe,Restaurant,4.3,4.3,0,522
+LOC_164,Wag & Wild,Restaurant,4.6,4.6,0,273
+LOC_165,Kontiki,Restaurant,4.2,4.2,0,715
+LOC_166,Whisk & Paddle,Restaurant,4.1,4.1,0,3591
+LOC_167,Well Collective,Restaurant,4.0,4,0,478
+LOC_168,Fat Po,Restaurant,4.1,4.1,0,799
+LOC_169,Flamingo,Restaurant,4.8,4.8,0,18
+LOC_170,Kith Cafe (Robertson Quay),Restaurant,4.0,4,0,298
+LOC_171,Toby's Estate,Restaurant,4.1,4.1,0,1635
+LOC_172,Bella Pasta,Restaurant,4.4,4.4,0,1267
+LOC_173,Three Buns (Quayside),Restaurant,4.1,4.1,0,1054
+LOC_174,Super Loco (Customs House),Restaurant,4.5,4.5,0,2907
+LOC_175,Level33,Restaurant,4.4,4.4,0,4408
+LOC_176,LeVeL33 Alfresco,Restaurant,4.4,4.4,0,4408
+LOC_177,OverEasy (Fullerton),Restaurant,4.3,4.3,0,3282
+LOC_178,The Landing Point,Restaurant,4.3,4.3,0,961
+LOC_179,Town Restaurant Alfresco,Restaurant,4.1,4.1,0,874
+LOC_180,Saffron Bistro,Restaurant,3.9,4.8,0,432
+LOC_181,My Awesome Cafe,Restaurant,4.7,4.7,0,8028
+LOC_182,Free the Robot,Restaurant,4.4,4.4,0,913
+LOC_183,Sarnies,Restaurant,4.1,4.1,0,1967
+LOC_184,Park Bench Deli,Restaurant,4.4,4.4,0,13
+LOC_185,Plain Vanilla (Telok Ayer),Restaurant,4.2,4.3,0,790
+LOC_186,Lunas,Restaurant,4.0,4,0,707
+LOC_187,BoCHINche,Restaurant,4.6,4.6,0,1713
+LOC_188,Sol & Luna,Restaurant,4.2,4.2,0,1054
+LOC_189,Bee's Knees Urban,Restaurant,4.5,3.3,0,34
+LOC_190,Brunetti,Restaurant,4.2,4.2,0,3676
+LOC_191,White Marble,Restaurant,4.0,4,0,1
+LOC_192,Caffé B,Restaurant,4.5,4.3,0,292
+LOC_193,Choupinette,Restaurant,4.4,4.4,0,705
+LOC_194,Spruce (HillV2),Restaurant,4.2,4.2,0,412
+LOC_195,Cedele Bakery Cafe (HillV2),Restaurant,3.5,3.5,0,459
+LOC_196,IO Italian Osteria,Restaurant,4.6,4.6,0,5382
+LOC_197,Co源 Cafe,Restaurant,3.9,3.3,0,36
+LOC_198,Acqua e Farina,Restaurant,4.6,4.6,0,692
+LOC_199,Springleaf Prata Place (Rail Mall),Restaurant,4.4,4.4,0,5088
+LOC_200,The Coffee Bean & Tea Leaf (Rail Mall),Restaurant,4.0,4,0,842
+LOC_201,Toast Box (Rail Mall),Restaurant,3.6,3.6,0,395
+LOC_202,Greenology Cafe,Restaurant,4.3,4.9,0,547
+LOC_203,The Communal Place,Restaurant,4.3,4.7,0,81
+LOC_204,Prairie by Craftsmen (Joo Chiat),Restaurant,4.4,4.4,0,1077
+LOC_205,Sinpopo Brand (Katong),Restaurant,3.9,4.5,0,1568
+LOC_206,Micro Bakery & Kitchen (Red House),Restaurant,4.4,4.4,0,473
+LOC_207,Brawn & Brains Coffee,Restaurant,4.3,4.6,0,13
+LOC_208,Homeground Coffee Roasters,Restaurant,4.4,4.4,0,967
+LOC_209,Five Oars Coffee Roasters,Restaurant,4.2,4.2,0,2097
+LOC_210,Penny University,Restaurant,4.3,4.3,0,1956
+LOC_211,Baker & Cook (Swan Lake),Restaurant,4.3,4.3,0,967
+LOC_212,Plank Sourdough Pizza (Swan Lake),Restaurant,4.3,4.3,0,462
+LOC_213,The Garden Slug (Tampines),Restaurant,4.2,4.3,0,593
+LOC_214,Simplicité,Restaurant,4.0,4.4,0,975
+LOC_215,Lee Kee Seafood Alfresco,Restaurant,4.1,3.9,0,347
+LOC_216,Sanity Coffee Bar,Restaurant,4.6,4.7,0,95
+LOC_217,The Refinery,Restaurant,4.3,0,0,0
+LOC_218,Chye Seng Huat Hardware,Restaurant,4.3,4.3,0,2928
+LOC_219,Wandering Nomad Cafe,Restaurant,4.3,4.3,0,882
+LOC_220,Earlybird Cafe,Restaurant,4.5,4.5,0,935
+LOC_221,Brotherbird Bakehouse,Restaurant,4.0,4,0,266
+LOC_222,The Malayan Council (Bussorah),Restaurant,4.6,4.6,0,3575
+LOC_223,Fika Swedish Cafe & Bistro,Restaurant,4.1,4.1,0,2061
+LOC_224,Overrun,Restaurant,4.1,4.1,0,343
+LOC_225,Maison Sucree,Restaurant,4.2,4.2,0,58
+LOC_226,Creamier Handcrafted Ice Cream (Gillman),Restaurant,4.4,4.4,0,1142
+LOC_227,Hopscotch (Gillman Barracks),Restaurant,4.6,4.6,0,2491
+LOC_228,Naked Ice Cream,Restaurant,4.2,4.3,0,346
+LOC_229,The Plain Vanilla (East Coast),Restaurant,4.0,4,0,420
+LOC_230,Stamping Ground Coffee,Restaurant,4.2,4.2,0,515
+LOC_231,Perch,Restaurant,4.2,4.2,0,497
+LOC_232,Tanuki Raw (Jewel Park),Restaurant,4.0,4,0,444
+LOC_233,Rumours Beach Club,Restaurant,4.2,4.2,0,1796
+LOC_234,Ola Beach Club,Restaurant,4.3,4.3,0,2740
+LOC_235,Sabio by the Sea,Restaurant,4.3,4.3,0,685
+LOC_236,Mykonos on the Bay,Restaurant,4.5,4.5,0,716
+LOC_237,Soleil Bistro (Sentosa),Restaurant,4.3,4.3,0,687
+LOC_238,Greenwood Fish Market (Quayside Isle),Restaurant,4.2,4.2,0,2882
+LOC_239,Two Chefs Bar,Restaurant,4.3,4.3,0,403
+LOC_240,Miska Cafe,Restaurant,4.1,4.1,0,453
+LOC_241,Blue Lotus Chinese Eating House,Restaurant,4.3,4.3,0,272
+LOC_242,Ginett Restaurant & Wine Bar,Restaurant,4.1,4.1,0,1651
+LOC_243,The Guild,Restaurant,4.5,4.5,0,448
+LOC_244,Elephant Room,Restaurant,4.5,4.5,0,500
+LOC_245,Burnt Ends Alfresco,Restaurant,4.5,4.5,0,2620
+LOC_246,Margaritas Demi,Restaurant,4.3,4.3,0,1897
+LOC_247,Culina Bistro at Dempsey,Restaurant,4.3,4.3,0,1257
+LOC_248,Chopsuey Cafe at Dempsey,Restaurant,4.5,4.5,0,2297
+LOC_249,Samy's Curry Alfresco,Restaurant,4.3,4.3,0,2986
+LOC_250,Long Beach Seafood (Dempsey),Restaurant,4.3,4.3,0,2728
+LOC_251,Jumbo Seafood (Dempsey),Restaurant,4.5,4.5,0,4642
+LOC_252,Tinto,Restaurant,4.6,4.6,0,1092
+LOC_253,The Dempsey Cookhouse & Bar,Restaurant,4.5,4.5,0,1510
+LOC_254,Minnow,Restaurant,4.5,4.5,0,1473
+LOC_255,Plaza Brasserie Patio,Restaurant,4.3,4.4,0,3582
+LOC_256,Symmetry,Restaurant,4.3,4.3,0,2261
+LOC_257,Maison Ikkoku,Restaurant,4.2,4.2,0,684
+LOC_258,The Beast,Restaurant,4.1,4.1,0,688
+LOC_259,Flying Monkey,Restaurant,4.1,5,0,34
+LOC_260,The Coastal Settlement (Changi),Restaurant,4.2,4.2,0,2622
+LOC_261,Little Farms (Katong),Restaurant,4.7,4.7,0,1766
+LOC_262,Awfully Chocolate Bakery & Cafe,Restaurant,4.4,4.4,0,4430
+LOC_263,Birds of Paradise (East Coast),Restaurant,4.5,4.5,0,2144
+LOC_264,Choice Cuts Goods + Coffee,Restaurant,4.2,4.2,0,576
+LOC_265,Zaffron Kitchen (East Coast),Restaurant,4.4,4.4,0,2174
+LOC_266,Rabbit Carrot Gun,Restaurant,3.8,3.8,0,696
+LOC_267,Scruffy Murphy's,Restaurant,4.5,4.6,0,355
+LOC_268,East Coast Commune,Restaurant,4.2,4.2,0,943
+LOC_269,Bababa Cafe,Restaurant,4.7,4.3,0,3
+LOC_270,Carpenter and Cook,Restaurant,4.4,4.4,0,1580
+LOC_271,Beauty in The Pot (OneKM),Restaurant,4.5,4.5,0,1748
+LOC_272,Kureya Cafe,Restaurant,3.8,4.4,0,157
+LOC_273,Baker & Cook (Plaza Singapura),Restaurant,4.0,4.4,0,22584
+LOC_274,Cedele Bakery Cafe (Wheelock),Restaurant,3.7,3.7,0,423
+LOC_275,The Coastal Settlement (Dempsey),Restaurant,4.4,4.2,0,2622
+LOC_276,Grounded by Common Man,Restaurant,4.4,4.4,0,3095
+LOC_277,The Book Cafe,Restaurant,4.4,4.4,0,1470
+LOC_278,Marcello,Restaurant,4.5,4.5,0,78
+LOC_279,Bar.Yard,Restaurant,4.5,4.5,0,359
+LOC_280,Limoncello Pizza & Grill,Restaurant,4.3,4.3,0,1356
+LOC_281,TAP Craft Beer Bar (Robertson Quay),Restaurant,4.7,4.3,0,441
+LOC_282,Brewerkz (Riverside Point),Restaurant,4.4,4.4,0,2694
+LOC_283,Jumbo Seafood (Riverside),Restaurant,4.3,4.3,0,10419
+LOC_284,Summerlong Bistro,Restaurant,4.3,0,0,0
+LOC_285,Super Loco (Customs),Restaurant,4.5,4.5,0,2907
+LOC_286,The Fullerton Waterboat House (Patio),Restaurant,4.5,4.5,0,258
+LOC_287,Lady M New York (South Beach),Restaurant,3.6,3.6,0,244
+LOC_288,Fynn's Bistro,Restaurant,4.4,4.4,0,1515
+LOC_289,Vianney Cafe,Restaurant,4.6,4.7,0,785
+LOC_290,Punch Cafe,Restaurant,4.3,4.3,0,1949
+LOC_291,Boon Tong Kee (Balestier Patio),Restaurant,4.2,4.2,0,2765
+LOC_292,Loy Kee Best Chicken Rice,Restaurant,4.4,4.4,0,2548
+LOC_293,Whampoa Keng Fish Head Steamboat,Restaurant,4.0,4,0,1085
+LOC_294,Balestier Bak Kut Teh,Restaurant,4.1,4.1,0,1331
+LOC_295,The Assembly Ground (The Cathay),Restaurant,4.6,4.6,0,2101
+LOC_296,Noodle Place Restaurant Patio,Restaurant,4.8,4.8,0,34
+LOC_297,Crossroads Cafe (Marriott),Restaurant,3.9,3.9,0,661
+LOC_298,Tapas Club (Orchard),Restaurant,4.1,4.1,0,1078
+LOC_299,Kith Cafe (Ascott Orchard),Restaurant,4.1,4.1,0,293
+LOC_300,Wild Honey (Scotts Square),Restaurant,4.3,4.2,0,1916
+LOC_301,The Coffee Academics (Scotts Square),Restaurant,3.6,3.6,0,925
+LOC_302,OverEasy (Orchard),Restaurant,4.1,4.3,0,3282
+LOC_303,Prairie by Craftsmen (Bukit Timah),Restaurant,4.2,4.2,0,1442
+LOC_304,The Ritual,Restaurant,4.3,4.3,0,625
+LOC_305,Micro Bakery (Serene Centre),Restaurant,4.2,4.2,0,498
+LOC_306,Fat Belly (FBG),Restaurant,4.4,4.4,0,1427
+LOC_307,Da Paolo Gastronomia (Cluny),Restaurant,4.1,4.1,0,908
+LOC_308,Relish by Wild Rocket,Restaurant,4.0,4,0,830
+LOC_309,Simply Bread,Restaurant,3.5,3.5,0,407
+LOC_310,The Bakery by Woodlands Sourdough,Restaurant,5.0,4.5,0,128
+LOC_311,Spruce (Hillcrest),Restaurant,4.4,4.4,0,463
+LOC_312,Baker & Cook (Hillcrest),Restaurant,4.4,4.4,0,463
+LOC_313,Greenwood Fish Market (Bukit Timah),Restaurant,4.4,4.4,0,2700
+LOC_314,Rubato,Restaurant,4.3,4.6,0,273
+LOC_315,Fratini La Trattoria,Restaurant,4.5,4.5,0,186
+LOC_316,L'Olivo,Restaurant,5.0,5,0,18
+LOC_317,Plank Sourdough Pizza (Namly),Restaurant,4.1,4.1,0,120
+LOC_318,Baker & Cook (Namly),Restaurant,4.2,4.2,0,291
+LOC_319,Gizis,Restaurant,4.2,4.4,0,198
+LOC_320,Highlander Bar & Restaurant,Restaurant,3.9,3.9,0,845
+LOC_321,Harry's (Clarke Quay),Restaurant,4.5,4.5,0,1321
+LOC_322,Hanjip Korean Grill House,Restaurant,4.8,4.8,0,4663
+LOC_323,Zorba The Greek Taverna,Restaurant,4.4,4.4,0,2187
+LOC_324,Bayang,Restaurant,4.6,4.6,0,365
+LOC_325,Muchos,Restaurant,4.7,4.3,0,648
+LOC_326,The Mask Restaurant and Bar,Restaurant,4.1,4.1,0,557
+LOC_327,Dum Pukht,Restaurant,4.1,4.1,0,421
+LOC_328,Hero's,Restaurant,4.4,4.4,0,1160
+LOC_329,The Salted Plum,Restaurant,4.0,4,0,421
+LOC_330,Draft Land,Restaurant,4.3,4.3,0,181
+LOC_331,Clinton St. Baking Company,Restaurant,4.0,4,0,1533
+LOC_332,First Thai Restaurant,Restaurant,4.0,3.9,0,532
+LOC_333,Gunther's Modern French Cuisine,Restaurant,4.5,4.5,0,389
+LOC_334,Killiney Kopitiam (Purvis),Restaurant,3.8,3.8,0,263
+LOC_335,The Masses,Restaurant,4.4,4.3,0,1328
+LOC_336,Ah Sam Cold Drink Stall,Restaurant,4.4,0,0,0
+LOC_337,Piedra Negra,Restaurant,4.2,4.2,0,2155
+LOC_338,Blu Jaz Cafe,Restaurant,4.3,4.3,0,3653
+LOC_339,The Mad Sailors,Restaurant,4.1,4.1,0,578
+LOC_340,I Am...,Restaurant,4.1,4.4,0,1247
+LOC_341,there_was Coffee Bar,Restaurant,4.1,4.2,0,217
+LOC_342,Overeasy (Marina),Restaurant,4.3,4.3,0,3282
