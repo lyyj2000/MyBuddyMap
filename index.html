@@ -521,6 +521,13 @@ function updateVisibility() {
     const isEmergency = c.ecat === "E1_CONFIRMED_24_7";
     
     let show = true;
+        // Check if the place meets the minimum star rating (Applies to ALL pins)
+    if (show && typeof minRating !== 'undefined' && minRating > 3) {
+        const placeRating = parseFloat(c.rating) || 0;
+        if (placeRating < minRating) {
+            show = false;
+        }
+    }
     
     if (isEmergency) {
         show = true;
