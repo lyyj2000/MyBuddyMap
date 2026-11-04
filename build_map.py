@@ -1372,7 +1372,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
-"""
+'''
 
 if __name__ == "__main__":
     build()
