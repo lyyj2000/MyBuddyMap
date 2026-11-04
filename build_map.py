@@ -734,7 +734,7 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 <body>
 
 <div id="map-toast"></div>
-<div id="rating-slider" style="display:none;"></div>
+
 
 <section id="panel">
   <div class="panel-content">
@@ -820,6 +820,12 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
               Parks
           </button>
       </div>
+      
+      <div class="section-label" style="margin-top: 10px;">RATING FILTER</div>
+<div class="radius-box" style="padding-bottom: 20px; margin-bottom: 0; border: none; box-shadow: none; padding-left: 0; padding-right: 0;">
+    <h4 style="margin-bottom: 10px; font-size: 13px; color: #1A1A1A;">Minimum Rating: <span id="ratingVal" style="color: #10B981;">3★ & Above</span></h4>
+    <input type="range" id="rating-slider" min="3" max="5" step="0.5" value="3" style="width: 100%; accent-color: #10B981; cursor: pointer;">
+</div>
 
       <div class="section-label">FILTERS <a id="reset-btn">Reset All</a></div>
       <div class="radius-box">
@@ -1309,6 +1315,18 @@ function initLocation() {
 setTimeout(() => { map.invalidateSize(); }, 200);
 setTimeout(initLocation, 1000);
 
+    // --- Rating Slider Logic ---
+    var ratingSlider = document.getElementById('rating-slider');
+    var ratingVal = document.getElementById('ratingVal');
+    if (ratingSlider && ratingVal) {
+        ratingSlider.addEventListener('input', function(e) {
+            var minRating = parseFloat(e.target.value);
+            ratingVal.textContent = (minRating > 3) ? minRating.toFixed(1) + "★ & Above" : "3★ & Above";
+            
+            // If you have a function that filters the map based on minRating, call it here:
+            // if (typeof updateVisibility === 'function') updateVisibility();
+        });
+    }
 
 // --- Pricing Guide Logic ---
 document.addEventListener('DOMContentLoaded', function() {
