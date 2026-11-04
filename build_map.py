@@ -1090,13 +1090,7 @@ function updateVisibility() {
     const isEmergency = c.ecat === "E1_CONFIRMED_24_7";
     
     let show = true;
-        // Check if the place meets the minimum star rating (Applies to ALL pins)
-    if (show && typeof minRating !== 'undefined' && minRating > 3) {
-        const placeRating = parseFloat(c.rating) || 0;
-        if (placeRating < minRating) {
-            show = false;
-        }
-    }
+      
     
     if (isEmergency) {
         show = true;
@@ -1133,7 +1127,14 @@ function updateVisibility() {
           show = map.distance(centre, m.marker.getLatLng()) <= radius;
         }
     }
-
+    
+    // Final check: Hide if rating is below the slider, but ALWAYS show emergencies
+    if (show && !isEmergency && typeof minRating !== 'undefined' && minRating > 3) {
+        const placeRating = parseFloat(c.rating) || 0;
+        if (placeRating < minRating) {
+            show = false;
+        }
+    }
     if (show) { 
         if (!layer.hasLayer(m.marker)) layer.addLayer(m.marker); 
         visible++; 
