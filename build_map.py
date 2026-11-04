@@ -9,6 +9,7 @@ from openpyxl import load_workbook
 WORKBOOK_VETS = "MyBuddy_Vet_Finder_MASTER_RECONCILED_2026-10-15_v9.xlsx"
 WORKBOOK_PLACES = "PET_PLACES.xlsx"
 WORKBOOK_REST = "Pets_places_rest_updated.xlsx"
+PRICING_FILE = "MyBuddy_Clinic_Price_List_Register_2026-11-04.xlsx"
 REVIEWS_CACHE_FILE = "reviews_cache.json"
 
 OUTPUT   = "index.html"
@@ -283,6 +284,41 @@ def build():
         wb_rest = load_workbook(WORKBOOK_REST, data_only=True)
         places_data.extend(read_sheet(wb_rest, 0))
     except Exception as e: print(f"Warning: Could not load {WORKBOOK_REST} - {e}")
+        # --- NEW: Load Vet Pricing Guide ---
+    PRICING_DATA = {}
+    if Path(PRICING_FILE).exists():
+        print("Loading Vet Pricing Guide...")
+        try:
+            pricing_wb = load_workbook(PRICING_FILE, data_only=True)
+            if "Price Entry Detail" in pricing_wb.sheetnames:
+                ws = pricing_wb["Price Entry Detail"]
+                headers = [cell.value for cell in ws[1]]
+                
+                id_idx = headers.index("MyBuddy Vet ID")
+                service_idx = headers.index("Service")
+                species_idx = headers.index("Species")
+                cond_idx = headers.index("Weight / Condition")
+                price_idx = headers.index("Price")
+                type_idx = headers.index("Price Type")
+                notes_idx = headers.index("Notes")
+                
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    vet_id = str(row[id_idx]).strip() if row[id_idx] else None
+                    if vet_id and vet_id != "GLOBAL" and vet_id != "None":
+                        if vet_id not in PRICING_DATA:
+                            PRICING_DATA[vet_id] = []
+                        
+                        PRICING_DATA[vet_id].append({
+                            "service": str(row[service_idx] or "").strip(),
+                            "species": str(row[species_idx] or "").strip(),
+                            "condition": str(row[cond_idx] or "").strip(),
+                            "price": str(row[price_idx] or "").strip(),
+                            "type": str(row[type_idx] or "").strip(),
+                            "notes": str(row[notes_idx] or "").strip()
+                        })
+            pricing_wb.close()
+        except Exception as e:
+            print(f"Warning: Could not load pricing file - {e}")
 
     funeral_keywords = ["funeral", "cremation", "cremate", "memorial"]
     funeral_vets = set()
@@ -524,7 +560,7 @@ def build():
         directory.setdefault(letter, []).append({"id": c["id"], "name": c["name"], "category": c["category"]})
     for L in directory: directory[L].sort(key=lambda x: x["name"].lower())
 
-    data_json = json.dumps({"clinics": valid_clinics, "siblings": siblings, "directory": directory}, ensure_ascii=False, separators=(",", ":"))
+    data_json = json.dumps({"clinics": valid_clinics, "siblings": siblings, "directory": directory, "pricing_data": PRICING_DATA }, ensure_ascii=False, separators=(",", ":"))
     data_json = data_json.replace("</", "<\\/")
 
     Path(OUTPUT).write_text(HTML_TEMPLATE.replace("/*DATA*/", data_json), encoding="utf-8")
@@ -718,6 +754,11 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
           <span style="color:#10B981;"><span style="font-size:10px;">●</span> Near: Current Location</span>
           <span onclick="initLocation()">Detect GPS</span>
       </div>
+ <div style="padding: 10px 20px 0 20px;">
+    <button id="pricing-btn" style="width: 100%; padding: 12px; background-color: #388E3C; color: white; border: none; border-radius: 8px; font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: bold; cursor: pointer;">
+        💰 Vet Pricing Guide
+    </button>
+</div>     
 
       <div class="section-label">PRIMARY SERVICE</div>
       <div class="service-grid">
@@ -1258,9 +1299,73 @@ function initLocation() {
 
 setTimeout(() => { map.invalidateSize(); }, 200);
 setTimeout(initLocation, 1000);
+
+
+            if (e.target === pricingModal) pricingModal.style.display = 'none';
+        });
+    }
+});// --- Pricing Guide Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    const pricingBtn = document.getElementById('pricing-btn');
+    const pricingModal = document.getElementById('pricing-modal');
+    const closePricingBtn = document.getElementById('close-pricing');
+    const pricingContent = document.getElementById('pricing-content');
+
+    if (pricingBtn && DATA.pricing_data) {
+        pricingBtn.addEventListener('click', () => {
+            let htmlStr = "";
+            for (const [vetId, prices] of Object.entries(DATA.pricing_data)) {
+                const clinic = DATA.clinics.find(c => c.id === vetId || c.original_id === vetId);
+                const clinicName = clinic ? clinic.name : vetId;
+                htmlStr += `<h3 style="color: #333; margin-top: 20px; border-bottom: 2px solid #388E3C; padding-bottom: 5px;">${clinicName}</h3>`;
+                htmlStr += `<table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px;">`;
+                htmlStr += `<tr style="background: #f1f8e9; text-align: left;">
+                                <th style="padding: 8px; border: 1px solid #c8e6c9;">Service</th>
+                                <th style="padding: 8px; border: 1px solid #c8e6c9;">Species / Condition</th>
+                                <th style="padding: 8px; border: 1px solid #c8e6c9;">Price (SGD)</th>
+                            </tr>`;
+                
+                prices.forEach(p => {
+                    let condition = [p.species, p.condition].filter(Boolean).join(" - ");
+                    if (!condition) condition = "All";
+                    let priceStr = p.price;
+                    if (p.type === "From") priceStr = "From $" + priceStr;
+                    else if (p.type === "Range") priceStr = "Range: $" + priceStr;
+                    else if (priceStr && !priceStr.includes("$")) priceStr = "$" + priceStr;
+
+                    htmlStr += `<tr>
+                                    <td style="padding: 8px; border: 1px solid #e0e0e0;">${p.service}</td>
+                                    <td style="padding: 8px; border: 1px solid #e0e0e0;">${condition}</td>
+                                    <td style="padding: 8px; border: 1px solid #e0e0e0; font-weight: bold; color: #388E3C;">${priceStr}</td>
+                                </tr>`;
+                });
+                htmlStr += `</table>`;
+            }
+            pricingContent.innerHTML = htmlStr;
+            pricingModal.style.display = 'flex';
+        });
+
+        closePricingBtn.addEventListener('click', () => {
+            pricingModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
 </script>
+
+<div id="pricing-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; position: relative;">
+        <button id="close-pricing" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #333;">&times;</button>
+        <h2 style="color: #388E3C; font-family: 'Baloo 2', sans-serif; margin-top: 0;">Vet Pricing Guide</h2>
+        <p style="font-size: 13px; color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 6px; border-left: 4px solid #d32f2f;">
+            <b>Disclaimer:</b> Prices are subject to change and were accurate at the time of recording. Please verify directly with the clinic before visiting.
+        </p>
+        <div id="pricing-content" style="overflow-y: auto; flex-grow: 1; margin-top: 15px;"></div>
+    </div>
+</div>
+
 </body>
 </html>
+
 '''
 
 if __name__ == "__main__":
