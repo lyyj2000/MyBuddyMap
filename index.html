@@ -185,11 +185,20 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
           <span style="color:#10B981;"><span style="font-size:10px;">●</span> Near: Current Location</span>
           <span onclick="initLocation()">Detect GPS</span>
       </div>
- <div style="padding: 10px 20px 0 20px;">
-    <button id="pricing-btn" style="width: 100%; padding: 12px; background-color: #388E3C; color: white; border: none; border-radius: 8px; font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: bold; cursor: pointer;">
-        💰 Vet Pricing Guide
+  <div style="padding: 0 20px 15px 20px;">
+    <button id="pricing-btn" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border: 1px solid #E5E7EB; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+        <div style="background: #F3F4F6; border-radius: 6px; padding: 8px; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="#1A1A1A" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+        </div>
+        <div>
+            <div style="font-size: 14px; font-weight: 600; color: #1A1A1A; font-family: 'Inter', sans-serif;">Vet Pricing Guide</div>
+            <div style="font-size: 12px; color: #6B7280; font-family: 'Inter', sans-serif;">Compare clinic rates</div>
+        </div>
     </button>
-</div>     
+</div>
 
       <div class="section-label">PRIMARY SERVICE</div>
       <div class="service-grid">
