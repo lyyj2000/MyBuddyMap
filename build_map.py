@@ -694,13 +694,8 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 
-.leaflet-popup-content-wrapper { border-radius: 16px !important; padding: 0; overflow: hidden; }
+.leaflet-popup-content-wrapper { border-radius: 16px !important; padding: 0; }
 .leaflet-popup-content { margin: 0 !important; font-family: 'Inter', sans-serif; }
-
-/* Push the whole popup down so it doesn't hit the top of the screen */
-.leaflet-popup {
-    margin-top: 80px !important; 
-}
 
 .popup { padding: 20px; }
 .popup-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
@@ -713,17 +708,6 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .popup-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; border-top: 1px solid #E5E7EB; padding-top: 16px; }
 .popup-btn { display: block; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: #fff !important; font-size: 13px; font-weight: 600; transition: opacity 0.2s; cursor: pointer;}
 .popup-btn:hover { opacity: 0.9; }
-
-/* --- FIX FOR POPUP CUT OFF --- */
-.leaflet-popup-content-wrapper {
-    max-height: 400px !important; 
-    overflow-y: auto !important;  
-    border-radius: 12px !important;
-}
-
-.leaflet-popup-content {
-    margin: 15px !important; 
-}
 
 .transport-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .trans-btn { border: none; font-weight: 600; padding: 8px 12px; border-radius: 6px; font-family: inherit; cursor: pointer; font-size: 12px; flex: 1; text-align: center; text-decoration: none; display: block;}
@@ -1189,7 +1173,8 @@ function updateVisibility() {
         
         if (show && filterTopRated && c.rating < 4.5) show = false;
 
-        if (show && !hasSearch) {
+        // Skip the radius check for Parks and Training so they show islandwide
+        if (show && !hasSearch && c.category !== "Park" && c.category !== "Training") {
           show = map.distance(centre, m.marker.getLatLng()) <= radius;
         }
     }
@@ -1241,6 +1226,12 @@ function setCategory(cat, element) {
     }
 
     searchText = "";
+        // --- Reset Rating Slider to 4.0 ---
+    minRating = 4;
+    const ratingSlider = document.getElementById('rating-slider');
+    if (ratingSlider) ratingSlider.value = 4;
+    const ratingVal = document.getElementById('ratingVal');
+    if (ratingVal) ratingVal.textContent = "4★ & Above";
     document.getElementById("search").value = "";
     updateVisibility();
     buildDirectory(); 
