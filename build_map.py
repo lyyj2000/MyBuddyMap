@@ -1386,7 +1386,7 @@ DATA.clinics.forEach(c => {
   marker.clinic = c; marker.status = st;
   markers.push({ marker, clinic: c, status: st }); markersById[c.id] = { marker, clinic: c, status: st };
   layer.addLayer(marker);
-
+  });
 
 updateVisibility();
 if (unresolved) console.log("Unresolved coords: " + unresolved);
