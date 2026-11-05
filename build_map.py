@@ -1207,7 +1207,8 @@ function updateVisibility() {
         if (placeRating < minRating) {
             show = false;
         }
-    }
+    } // <--- This closes the 'if (show && !isEmergency...)' block
+
     if (show) { 
         if (!layer.hasLayer(m.marker)) layer.addLayer(m.marker); 
         visible++; 
@@ -1418,6 +1419,11 @@ function initLocation() {
 
 setTimeout(() => { map.invalidateSize(); }, 200);
 setTimeout(initLocation, 1000);
+
+    // Force Leaflet to recalculate its size when switching to mobile view
+    window.addEventListener('resize', function() {
+        map.invalidateSize();
+    });
 
     // --- Rating Slider Logic ---
     var ratingSlider = document.getElementById('rating-slider');
