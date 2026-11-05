@@ -125,16 +125,23 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 
-.leaflet-popup-content-wrapper { 
-    border-radius: 16px !important; 
-    padding: 0; 
-    max-height: min(70vh, 500px) !important; 
+/* Popup outer container */
+.leaflet-popup-content-wrapper {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Actual scrollable content */
+.leaflet-popup-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-height: 65vh !important;
     overflow-y: auto !important;
     overscroll-behavior: contain;
-}
-.leaflet-popup-content { 
-    margin: 0 !important; 
-    font-family: 'Inter', sans-serif; 
+    font-family: 'Inter', sans-serif;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 }
 
 .popup { padding: 20px; }
@@ -799,29 +806,18 @@ DATA.clinics.forEach(c => {
   if (c.lat == null || c.lng == null) { unresolved++; return; }
   const st = statusFor(c);
   const marker = L.marker([c.lat, c.lng], { icon: pinIcon(c, st) });
-  marker.bindPopup(() => popupHTML(c, statusFor(c)), { maxHeight: 450 });
+  marker.bindPopup(() => popupHTML(c, statusFor(c)), {
+    maxHeight: Math.floor(window.innerHeight * 0.65),
+    maxWidth: 340,
+    autoPan: true,
+    autoPanPaddingTopLeft: [20, 20],
+    autoPanPaddingBottomRight: [20, 20],
+    keepInView: true
+});
   marker.clinic = c; marker.status = st;
   markers.push({ marker, clinic: c, status: st }); markersById[c.id] = { marker, clinic: c, status: st };
   layer.addLayer(marker);
 
-  // --- Smart Repositioning Logic ---
-  marker.on('popupopen', function(e) {
-      setTimeout(() => {
-          const popup = e.popup.getElement();
-          if (popup) {
-              const rect = popup.getBoundingClientRect();
-              // If the top of the popup is too close to the top of the screen
-              if (rect.top < 120) {
-                  // Pan the map DOWN to make room
-                  const shift = 120 - rect.top;
-                  const currentCenter = map.getCenter();
-                  const newPoint = map.project(currentCenter).add([0, shift]);
-                  map.panTo(map.unproject(newPoint), { animate: true, duration: 0.3 });
-              }
-          }
-      }, 100); 
-  });
-});
 
 updateVisibility();
 if (unresolved) console.log("Unresolved coords: " + unresolved);
