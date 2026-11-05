@@ -1203,7 +1203,7 @@ function updateVisibility() {
         }
         
         // Only hide if the calculated rating is below the slider
-        if (placeRating < minRating) {
+        if (placeRating < minRating - 0.01) {
             show = false;
         }
     } 
@@ -1348,7 +1348,6 @@ document.getElementById("reset-btn").addEventListener('click', () => {
     currentCategory = "Vet";
     currentSpecies = "all";
     filterTopRated = false;
-    document.getElementById("filter-top").checked = false;
     document.getElementById("radius").value = 5;
     centreCircle.setRadius(5000);
     document.getElementById("radiusVal").textContent = "5 km";
