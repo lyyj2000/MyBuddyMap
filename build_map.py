@@ -708,6 +708,15 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .popup-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; border-top: 1px solid #E5E7EB; padding-top: 16px; }
 .popup-btn { display: block; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: #fff !important; font-size: 13px; font-weight: 600; transition: opacity 0.2s; cursor: pointer;}
 .popup-btn:hover { opacity: 0.9; }
+/* --- FIX FOR POPUP CUT OFF --- */
+.leaflet-popup-content-wrapper {
+    max-height: 350px !important; 
+    overflow-y: auto !important;  
+    border-radius: 12px !important;
+}
+.leaflet-popup-content {
+    margin: 15px !important; 
+}
 
 .transport-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .trans-btn { border: none; font-weight: 600; padding: 8px 12px; border-radius: 6px; font-family: inherit; cursor: pointer; font-size: 12px; flex: 1; text-align: center; text-decoration: none; display: block;}
@@ -1036,6 +1045,10 @@ function popupHTML(c, st) {
   const color = st.key==="open" ? "#10B981" : "#9CA3AF";
   
   let actionLinks = "";
+    // --- Directions Link ---
+  const destQuery = encodeURIComponent(`${c.name} ${c.address} Singapore ${c.postal}`);
+  const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${destQuery}`;
+  let dirBtn = `<a class="popup-btn" href="${dirUrl}" target="_blank" style="background:#4285F4;">🚗 Directions</a>`;
   const searchQuery = encodeURIComponent(`${c.name} ${c.address} Singapore`);
   const gUrl = `https://www.google.com/search?q=${searchQuery}`;
 
@@ -1115,6 +1128,7 @@ function popupHTML(c, st) {
     ${c.hours_text ? `<p>🕒 ${esc(c.hours_text)}</p>` : ''}
     
     <div class="popup-actions">
+      ${dirBtn}
       ${actionLinks}
       ${contactHTML}
     </div>
