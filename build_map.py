@@ -1193,7 +1193,6 @@ function updateVisibility() {
         if (show && !hasSearch && c.category !== "Park" && c.category !== "Training") {
           show = map.distance(centre, m.marker.getLatLng()) <= radius;
         }
-    }
 
     // Final check: Hide if rating is below the slider, but ALWAYS show emergencies
     if (show && !isEmergency && typeof minRating !== 'undefined') {
