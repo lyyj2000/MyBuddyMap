@@ -694,8 +694,14 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 
-.leaflet-popup-content-wrapper { border-radius: 16px !important; padding: 0; }
-.leaflet-popup-content { margin: 0 !important; font-family: 'Inter', sans-serif; }
+.leaflet-popup-content-wrapper { 
+    border-radius: 16px !important; 
+    padding: 0; 
+}
+.leaflet-popup-content { 
+    margin: 0 !important; 
+    font-family: 'Inter', sans-serif; 
+}
 
 .popup { padding: 20px; }
 .popup-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
@@ -1181,9 +1187,15 @@ function updateVisibility() {
 
     // Final check: Hide if rating is below the slider, but ALWAYS show emergencies
     if (show && !isEmergency && typeof minRating !== 'undefined') {
-        const placeRating = parseFloat(c.rating);
-        // Only hide if the place HAS a rating and it's lower than the slider
-        if (!isNaN(placeRating) && placeRating > 0 && placeRating < minRating) {
+        let placeRating = parseFloat(c.rating);
+        
+        // If a place has no rating (or is 0), default it to 4.0
+        if (isNaN(placeRating) || placeRating === 0) {
+            placeRating = 4.0;
+        }
+        
+        // Only hide if the calculated rating is below the slider
+        if (placeRating < minRating) {
             show = false;
         }
     }
@@ -1225,13 +1237,14 @@ function setCategory(cat, element) {
         document.querySelectorAll('.pill[data-cat]').forEach(x => x.classList.remove('active'));
     }
 
-    searchText = "";
-        // --- Reset Rating Slider to 4.0 ---
+    // --- Reset Rating Slider to 4.0 ---
     minRating = 4;
     const ratingSlider = document.getElementById('rating-slider');
     if (ratingSlider) ratingSlider.value = 4;
     const ratingVal = document.getElementById('ratingVal');
     if (ratingVal) ratingVal.textContent = "4★ & Above";
+    
+    searchText = "";
     document.getElementById("search").value = "";
     updateVisibility();
     buildDirectory(); 
@@ -1352,7 +1365,7 @@ DATA.clinics.forEach(c => {
   if (c.lat == null || c.lng == null) { unresolved++; return; }
   const st = statusFor(c);
   const marker = L.marker([c.lat, c.lng], { icon: pinIcon(c, st) });
-  marker.bindPopup(() => popupHTML(c, statusFor(c)), { maxHeight: 250, autoPanPaddingTopLeft: [20, 50] });
+  marker.bindPopup(() => popupHTML(c, statusFor(c)), { maxHeight: 450, autoPanPaddingTopLeft: [20, 100] });
   marker.clinic = c; marker.status = st;
   markers.push({ marker, clinic: c, status: st }); markersById[c.id] = { marker, clinic: c, status: st };
   layer.addLayer(marker);
