@@ -454,72 +454,69 @@ def build():
         else:
             manual_coords = MANUAL_COORDS.get(c.get("original_id")) or MANUAL_COORDS.get(c["id"])
 
-            g_lat = None
-            g_lng = None
+        g_lat = None
+        g_lng = None
 
-            if manual_coords:
-                c["lat"], c["lng"] = manual_coords
-                if c["category"] in ["Vet", "Dine", "Cafe", "Asian", "Western"]:
-                    live_rating, live_reviews, _, _, place_id = fetch_google_data(
-                        c['name'], c['address'], c['postal']
-                    )
-                
-                    if live_rating is not None:
-                        try:
-                            excel_r = float(c["rating"]) if c["rating"] else 0.0
-                            excel_rc = int(c["review_count"]) if c["review_count"] else 0
-                        except: 
-                            excel_r = 0.0
-                            excel_rc = 0
-                        
-                        if abs(live_rating - excel_r) > 0.05 or (live_reviews or 0) != excel_rc:
-                            discrepancies.append({
-                                "ID": c["id"], "Name": c["name"], "Category": c["category"],
-                                "Excel Rating": excel_r, "API Rating": live_rating,
-                                "Excel Reviews": excel_rc, "API Reviews": live_reviews or 0
-                            })
-                        
-                        if live_reviews is not None and live_reviews > 0:
-                            c["rating"] = live_rating
-                            c["review_count"] = live_reviews
-                        
-                    c["place_id"] = place_id or ""
-            else:
-                live_rating, live_reviews, g_lat, g_lng, place_id = fetch_google_data(
+        if manual_coords:
+            c["lat"], c["lng"] = manual_coords
+            if c["category"] in ["Vet", "Dine", "Cafe", "Asian", "Western"]:
+                live_rating, live_reviews, _, _, place_id = fetch_google_data(
                     c['name'], c['address'], c['postal']
                 )
-            
                 if live_rating is not None:
                     try:
                         excel_r = float(c["rating"]) if c["rating"] else 0.0
                         excel_rc = int(c["review_count"]) if c["review_count"] else 0
-                    except: 
+                    except:
                         excel_r = 0.0
                         excel_rc = 0
-                    
+                        
                     if abs(live_rating - excel_r) > 0.05 or (live_reviews or 0) != excel_rc:
                         discrepancies.append({
                             "ID": c["id"], "Name": c["name"], "Category": c["category"],
                             "Excel Rating": excel_r, "API Rating": live_rating,
                             "Excel Reviews": excel_rc, "API Reviews": live_reviews or 0
                         })
-                    
+                        
                     if live_reviews is not None and live_reviews > 0:
                         c["rating"] = live_rating
                         c["review_count"] = live_reviews
-                    
                     c["place_id"] = place_id or ""
+        else:
+            live_rating, live_reviews, g_lat, g_lng, place_id = fetch_google_data(
+                c['name'], c['address'], c['postal']
+            )
+            if live_rating is not None:
+                try:
+                    excel_r = float(c["rating"]) if c["rating"] else 0.0
+                    excel_rc = int(c["review_count"]) if c["review_count"] else 0
+                except:
+                    excel_r = 0.0
+                    excel_rc = 0
+                    
+                if abs(live_rating - excel_r) > 0.05 or (live_reviews or 0) != excel_rc:
+                    discrepancies.append({
+                        "ID": c["id"], "Name": c["name"], "Category": c["category"],
+                        "Excel Rating": excel_r, "API Rating": live_rating,
+                        "Excel Reviews": excel_rc, "API Reviews": live_reviews or 0
+                    })
+                    
+                if live_reviews is not None and live_reviews > 0:
+                    c["rating"] = live_rating
+                    c["review_count"] = live_reviews
+                c["place_id"] = place_id or ""
                 
-                if g_lat and g_lng:
-                    c["lat"], c["lng"] = g_lat, g_lng
+            if g_lat and g_lng:
+                c["lat"], c["lng"] = g_lat, g_lng
                 
-                if c["lat"] is None or c["lng"] is None:
-                    coords = geocode_location(c["postal"], c["address"], c["name"], cache)
-                    if coords:
-                        c["lat"], c["lng"] = coords
-                    else:
-                        c["lat"] = None
-                        c["lng"] = None
+            if c["lat"] is None or c["lng"] is None:
+                coords = geocode_location(c["postal"], c["address"], c["name"], cache)
+                if coords:
+                    c["lat"], c["lng"] = coords
+                else:
+                    print(f"FAILED GEOCODE: {c['name']} - {c['address']} {c['postal']}")
+                    c["lat"] = None
+                    c["lng"] = None
 
 
         if c.get("lat") and c.get("lng"):
