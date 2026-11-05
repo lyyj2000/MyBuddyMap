@@ -1390,6 +1390,7 @@ if (unresolved) console.log("Unresolved coords: " + unresolved);
         mobileHandle.addEventListener('click', () => {
             console.log("Handle tapped!"); 
             mobilePanel.classList.toggle('expanded');
+        setTimeout(() => { map.invalidateSize(); }, 300); 
         });
     }
 
@@ -1411,10 +1412,6 @@ function initLocation() {
 setTimeout(() => { map.invalidateSize(); }, 200);
 setTimeout(initLocation, 1000);
 
-    // Force Leaflet to recalculate its size when switching to mobile view
-    window.addEventListener('resize', function() {
-        map.invalidateSize();
-    });
 
     // --- Rating Slider Logic ---
     var ratingSlider = document.getElementById('rating-slider');
