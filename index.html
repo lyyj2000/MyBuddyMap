@@ -773,8 +773,16 @@ searchInput.addEventListener("input", () => {
 });
 
 document.addEventListener("click", e => { if (!e.target.closest(".search-box")) directory.classList.remove("open"); });
+document.getElementById("radius").addEventListener("input", e => {
+  console.log("SLIDER MOVED! New radius:", e.target.value);
+  const km = parseFloat(e.target.value);
+  centreCircle.setRadius(km * 1000);
+  document.getElementById("radiusVal").textContent = km + " km";
+  updateVisibility();
+});
 
 document.getElementById("reset-btn").addEventListener('click', () => {
+
     searchInput.value = "";
     searchText = "";
     currentCategory = "Vet";
