@@ -379,7 +379,7 @@ def build():
             "booking": safe_http_url(h.get("Booking URL")), "ecat": ecat, "schedule": sched,
             "house_call": to_bool(r.get("Offers_House_Calls")), "hospice": to_bool(r.get("Hospice_Service")),
             "lat": None, "lng": None, "rating": r.get("Google Rating") or 0,
-            "review_count": int(float(p.get("Review Count") or 0)),
+            "review_count": int(float(r.get("Review Count") or 0)),
             "prices": prices_by_id.get(mbv, []), "species": species_by_id.get(mbv, []),
             "hours_text": "", "place_id": "", "reviews": [],
             "has_funeral": mbv in funeral_vets
@@ -445,12 +445,14 @@ def build():
     if Path(REVIEWS_CACHE_FILE).exists():
         try: reviews_cache = json.loads(Path(REVIEWS_CACHE_FILE).read_text(encoding="utf-8"))
         except Exception as e: print(f"Warning: Could not load {REVIEWS_CACHE_FILE} - {e}")
-        for c in clinics:
-            manual_coords = None
-            if c["category"] == "Vet": 
-                manual_coords = MANUAL_COORDS.get(c["id"])
-            else: 
-                manual_coords = MANUAL_COORDS.get(c.get("original_id")) or MANUAL_COORDS.get(c["id"])
+
+    # --- UNINDENTED! This now runs even if the cache is missing ---
+    for c in clinics:
+        manual_coords = None
+        if c["category"] == "Vet":
+            manual_coords = MANUAL_COORDS.get(c["id"])
+        else:
+            manual_coords = MANUAL_COORDS.get(c.get("original_id")) or MANUAL_COORDS.get(c["id"])
 
             g_lat = None
             g_lng = None
