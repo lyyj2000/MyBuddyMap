@@ -710,7 +710,7 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .popup-btn:hover { opacity: 0.9; }
 /* --- FIX FOR POPUP CUT OFF --- */
 .leaflet-popup-content-wrapper {
-    max-height: 350px !important; 
+    max-height: 220px !important; 
     overflow-y: auto !important;  
     border-radius: 12px !important;
 }
@@ -1359,7 +1359,7 @@ DATA.clinics.forEach(c => {
   if (c.lat == null || c.lng == null) { unresolved++; return; }
   const st = statusFor(c);
   const marker = L.marker([c.lat, c.lng], { icon: pinIcon(c, st) });
-  marker.bindPopup(() => popupHTML(c, statusFor(c)), { autoPanPaddingTopLeft: [20, 100] });
+  marker.bindPopup(() => popupHTML(c, statusFor(c)), { autoPanPaddingTopLeft: [20, 50] });
   marker.clinic = c; marker.status = st;
   markers.push({ marker, clinic: c, status: st }); markersById[c.id] = { marker, clinic: c, status: st };
   layer.addLayer(marker);
