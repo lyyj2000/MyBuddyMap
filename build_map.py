@@ -1158,7 +1158,6 @@ function updateVisibility() {
     const isEmergency = c.ecat === "E1_CONFIRMED_24_7";
     
     let show = true;
-      
     
     if (isEmergency) {
         show = true;
@@ -1195,6 +1194,7 @@ function updateVisibility() {
         if (show && !hasSearch && c.category !== "Park" && c.category !== "Training") {
           show = map.distance(centre, m.marker.getLatLng()) <= radius;
         }
+    } // <--- THIS IS THE MISSING BRACKET THAT WAS CRASHING YOUR MAP!
 
     // Final check: Hide if rating is below the slider, but ALWAYS show emergencies
     if (show && !isEmergency && typeof minRating !== 'undefined') {
@@ -1209,7 +1209,7 @@ function updateVisibility() {
         if (placeRating < minRating) {
             show = false;
         }
-    } // <--- This closes the 'if (show && !isEmergency...)' block
+    } 
 
     if (show) { 
         if (!layer.hasLayer(m.marker)) layer.addLayer(m.marker); 
@@ -1228,13 +1228,6 @@ function updateVisibility() {
   const radiusKm = radius / 1000;
   document.getElementById("bottom-text").innerHTML = `Showing <b>${visible}</b> ${catName} within your ${radiusKm} km search radius.`;
 }
-
-document.getElementById("radius").addEventListener("input", e => {
-  const km = parseFloat(e.target.value);
-  centreCircle.setRadius(km * 1000);
-  document.getElementById("radiusVal").textContent = km + " km";
-  updateVisibility();
-});
 
 function setCategory(cat, element) {
     currentCategory = cat;
