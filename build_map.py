@@ -697,6 +697,9 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .leaflet-popup-content-wrapper { 
     border-radius: 16px !important; 
     padding: 0; 
+    max-height: min(70vh, 500px) !important; 
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
 }
 .leaflet-popup-content { 
     margin: 0 !important; 
@@ -1365,10 +1368,28 @@ DATA.clinics.forEach(c => {
   if (c.lat == null || c.lng == null) { unresolved++; return; }
   const st = statusFor(c);
   const marker = L.marker([c.lat, c.lng], { icon: pinIcon(c, st) });
-  marker.bindPopup(() => popupHTML(c, statusFor(c)), { maxHeight: 450, autoPanPaddingTopLeft: [20, 100] });
+  marker.bindPopup(() => popupHTML(c, statusFor(c)), { maxHeight: 450 });
   marker.clinic = c; marker.status = st;
   markers.push({ marker, clinic: c, status: st }); markersById[c.id] = { marker, clinic: c, status: st };
   layer.addLayer(marker);
+
+  // --- Smart Repositioning Logic ---
+  marker.on('popupopen', function(e) {
+      setTimeout(() => {
+          const popup = e.popup.getElement();
+          if (popup) {
+              const rect = popup.getBoundingClientRect();
+              // If the top of the popup is too close to the top of the screen
+              if (rect.top < 120) {
+                  // Pan the map DOWN to make room
+                  const shift = 120 - rect.top;
+                  const currentCenter = map.getCenter();
+                  const newPoint = map.project(currentCenter).add([0, shift]);
+                  map.panTo(map.unproject(newPoint), { animate: true, duration: 0.3 });
+              }
+          }
+      }, 100); 
+  });
 });
 
 updateVisibility();
