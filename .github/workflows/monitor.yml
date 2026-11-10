@@ -1,0 +1,32 @@
+name: Weekly Link Monitor
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Runs every Monday at midnight
+  workflow_dispatch: # Allows you to run it manually from GitHub anytime
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install openpyxl requests pandas
+
+      - name: Run Link Checker
+        run: python monitor_links.py
+
+      - name: Commit and Upload Report
+        run: |
+          git config --global user.name "MyBuddy Bot"
+          git config --global user.email "bot@mybuddy.sg"
+          git add broken_links_report.csv
+          git commit -m "Auto-update broken links report [skip ci]" || exit 0
+          git push
