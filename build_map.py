@@ -407,9 +407,17 @@ def build():
                 day_text = extract_day_schedule(raw_hours, day)
                 sched[day] = parse_intervals(day_text)
 
-        rating_val = p.get("Google Rating") or p.get("Rating")
-        try: rating_val = float(rating_val) if rating_val else 0.0
-        except: rating_val = 0.0
+        rating_val = p.get("Google Rating")
+        # If Google Rating is missing or NaN, try the other Rating column
+        if rating_val is None or (isinstance(rating_val, float) and math.isnan(rating_val)):
+            rating_val = p.get("Rating")
+            
+        try: 
+            rating_val = float(rating_val) if rating_val else 0.0
+            if math.isnan(rating_val):
+                rating_val = 0.0
+        except: 
+            rating_val = 0.0
 
         postal = clean_postal(p.get("Postal Code"), name)
         postal = POSTAL_FALLBACKS.get(postal, postal)
