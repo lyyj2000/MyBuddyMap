@@ -36,10 +36,10 @@ def search_places(query):
     headers = {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": API_KEY,
-        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.websiteUri,places.nationalPhoneNumber,places.location,nextPageToken"
+        # We added places.regularOpeningHours here!
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.websiteUri,places.nationalPhoneNumber,places.location,places.regularOpeningHours,nextPageToken"
     }
     
-    # Strictly limit the search to Singapore's GPS boundaries
     payload = {
         "textQuery": query,
         "languageCode": "en",
@@ -53,7 +53,6 @@ def search_places(query):
     
     all_results = []
     
-    # Loop to get multiple pages of results
     while True:
         response = requests.post(url, headers=headers, json=payload, timeout=10)
         if response.status_code != 200:
@@ -63,10 +62,9 @@ def search_places(query):
         data = response.json()
         all_results.extend(data.get('places', []))
         
-        # Check if there is a next page
         if 'nextPageToken' in data:
             payload['pageToken'] = data['nextPageToken']
-            time.sleep(1) # Wait 1 second between pages
+            time.sleep(1)
         else:
             break
             
@@ -95,6 +93,10 @@ def main():
                 postal = extract_postal_code(address)
                 website = place.get('websiteUri', '')
                 
+                # Get the operating hours!
+                regular_hours = place.get('regularOpeningHours', {})
+                hours_desc = "\n".join(regular_hours.get('weekdayDescriptions', []))
+                
                 print(f"    -> Processing: {name}...")
                 fb, ig = find_social_links(website)
                 
@@ -105,7 +107,7 @@ def main():
                     "Address": address,
                     "Postal Code": postal,
                     "Phone": place.get('nationalPhoneNumber', ''),
-                    "Operating Hours": "", 
+                    "Operating Hours": hours_desc,  # <--- Adding the hours here
                     "Rating": place.get('rating', ''),
                     "Review Count": place.get('userRatingCount', ''),
                     "Website": website,
