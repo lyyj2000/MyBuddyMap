@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * 1' # Runs every Monday at midnight
   workflow_dispatch: # Allows you to run it manually from GitHub anytime
+  
+permissions:
+  contents: write  
 
 jobs:
   check-links:
