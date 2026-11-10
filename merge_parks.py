@@ -8,7 +8,7 @@ new_df = pd.read_excel("PET_PLACES.xlsx")
 old_df = pd.read_excel("PET_PLACES_BAD.xlsx")
 
 # Filter the old file to keep ONLY Parks and Training
-parks_training = old_df[old_df['Category'].isin(['Park', 'Training'])]
+parks_training = old_df[old_df['Category'].isin(['Park', 'Training', 'Mall'])]
 
 print(f"Found {len(parks_training)} Parks and Training locations in the backup.")
 
