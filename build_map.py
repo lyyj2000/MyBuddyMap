@@ -1277,21 +1277,36 @@ let searchTimeout;
 const searchInput = document.getElementById("search");
 const directory = document.getElementById("directory");
 
-function buildDirectory() {
+function buildDirectory(query = "") {
     directory.innerHTML = '';
     const letters = Object.keys(DATA.directory).sort();
+    const q = query.toLowerCase().trim();
+
     letters.forEach(L => {
         const items = DATA.directory[L].filter(c => {
-            if (currentCategory === "All") return true;
-            if (currentCategory === "Dine") return ["Asian", "Western", "Cafe", "Dine"].includes(c.category);
-            return c.category === currentCategory;
+            // 1. Filter by Category (Vet, Groomer, etc.)
+            let matchCat = false;
+            if (currentCategory === "All") matchCat = true;
+            else if (currentCategory === "Dine") matchCat = ["Asian", "Western", "Cafe", "Dine"].includes(c.category);
+            else matchCat = c.category === currentCategory;
+            
+            if (!matchCat) return false;
+
+            // 2. Filter by the typed search text
+            if (q.length > 0) {
+                return c.name.toLowerCase().includes(q);
+            }
+            return true;
         });
+
+        // If no items in this letter match, skip the letter
         if (!items.length) return;
 
         const section = document.createElement('div'); section.className = 'dir-letter';
         const header = document.createElement('div'); header.className = 'dir-header'; header.textContent = `${L} (${items.length})`;
         header.onclick = () => section.classList.toggle('open');
         const list = document.createElement('div'); list.className = 'dir-items';
+        
         items.forEach(c => {
             const item = document.createElement('div'); item.className = 'dir-item'; item.textContent = c.name;
             item.onclick = () => {
@@ -1305,6 +1320,10 @@ function buildDirectory() {
             };
             list.appendChild(item);
         });
+        
+        // If the user is typing, auto-open the list so they see the result immediately
+        if (q.length > 0) section.classList.add('open');
+        
         section.appendChild(header); section.appendChild(list); directory.appendChild(section);
     });
 }
@@ -1315,12 +1334,15 @@ searchInput.addEventListener("input", () => {
   clearTimeout(searchTimeout);
   
   if (!q) {
+      // If empty, reset everything and show full A-Z list
       searchText = ""; 
       updateVisibility();
+      buildDirectory(); 
       return;
   }
   
   if (/^\d{6}$/.test(q)) {
+      // Keep your existing postal code logic exactly the same
       searchTimeout = setTimeout(async () => {
           const url = "https://www.onemap.gov.sg/api/common/elastic/search?searchVal=" + q + "&returnGeom=Y&getAddrDetails=Y&pageNum=1";
           const r = await fetch(url); const j = await r.json();
@@ -1331,12 +1353,15 @@ searchInput.addEventListener("input", () => {
               map.flyTo(ll, 15);
               searchText = ""; 
               updateVisibility();
+              directory.classList.remove("open");
           }
       }, 600);
   } else {
+      // Filter the map AND the A-Z dropdown list
       searchText = q.toLowerCase();
       updateVisibility();
-      directory.classList.remove("open");
+      buildDirectory(q); 
+      directory.classList.add("open"); 
   }
 });
 
