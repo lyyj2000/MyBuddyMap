@@ -2,9 +2,10 @@
 # ============================================================================
 # build_map.py  —  MyBuddy Pet Finder (V92 - Desktop Call Interceptor)
 # ============================================================================
-import json, re, time, urllib.request, urllib.parse, random, csv
+import json, re, time, urllib.request, urllib.parse, random, csv, math
 from pathlib import Path
 from openpyxl import load_workbook
+import math
 
 WORKBOOK_VETS = "MyBuddy_Vet_Finder_MASTER_RECONCILED_2026-10-15_v9.xlsx"
 WORKBOOK_PLACES = "PET_PLACES.xlsx"
@@ -415,9 +416,15 @@ def build():
 
         lat_val = p.get("Latitude"); lng_val = p.get("Longitude")
         try:
-            if lat_val and lng_val: lat_val = float(lat_val); lng_val = float(lng_val)
-            else: lat_val = None; lng_val = None
-        except: lat_val = None; lng_val = None
+            if lat_val and lng_val: 
+                lat_val = float(lat_val); lng_val = float(lng_val)
+                # If Pandas saved it as NaN, treat it as empty so the geocoder fixes it
+                if math.isnan(lat_val) or math.isnan(lng_val):
+                    lat_val = None; lng_val = None
+            else: 
+                lat_val = None; lng_val = None
+        except: 
+            lat_val = None; lng_val = None
 
         clinics.append({
             "id": pid, "original_id": original_id, "category": cat, "name": name,
@@ -483,32 +490,24 @@ def build():
                         c["review_count"] = live_reviews
                     c["place_id"] = place_id or ""
         else:
-            live_rating, live_reviews, g_lat, g_lng, place_id = fetch_google_data(
-                c['name'], c['address'], c['postal']
-            )
-            if live_rating is not None:
-                try:
-                    excel_r = float(c["rating"]) if c["rating"] else 0.0
-                    excel_rc = int(c["review_count"]) if c["review_count"] else 0
-                except:
-                    excel_r = 0.0
-                    excel_rc = 0
-                    
-                if abs(live_rating - excel_r) > 0.05 or (live_reviews or 0) != excel_rc:
-                    discrepancies.append({
-                        "ID": c["id"], "Name": c["name"], "Category": c["category"],
-                        "Excel Rating": excel_r, "API Rating": live_rating,
-                        "Excel Reviews": excel_rc, "API Reviews": live_reviews or 0
-                    })
-                    
-                if live_reviews is not None and live_reviews > 0:
-                    c["rating"] = live_rating
-                    c["review_count"] = live_reviews
-                c["place_id"] = place_id or ""
-                
+            # 1. Check if the rating already exists in the Excel file
+            if c.get("rating") and c.get("rating") > 0:
+                live_rating = c["rating"]
+                live_reviews = c.get("review_count", 0)
+                g_lat = c.get("lat")
+                g_lng = c.get("lng")
+                place_id = c.get("place_id", "")
+            else:
+                # 2. If no rating exists, call the API
+                live_rating, live_reviews, g_lat, g_lng, place_id = fetch_google_data(
+                    c['name'], c['address'], c['postal']
+                )
+
+            # 3. Save the coordinates if we have them
             if g_lat and g_lng:
                 c["lat"], c["lng"] = g_lat, g_lng
                 
+            # 4. If coordinates are missing, use OneMap!
             if c["lat"] is None or c["lng"] is None:
                 coords = geocode_location(c["postal"], c["address"], c["name"], cache)
                 if coords:
@@ -517,29 +516,35 @@ def build():
                     print(f"FAILED GEOCODE: {c['name']} - {c['address']} {c['postal']}")
                     c["lat"] = None
                     c["lng"] = None
+                    
+            # 5. Geofence check
+            if c["lat"] is not None and c["lng"] is not None:
+                if not (1.1 <= c["lat"] <= 1.5 and 103.5 <= c["lng"] <= 104.2):
+                    print(f"Geofence triggered for {c['name']} — forcing SG search...")
+                    c["place_id"] = ""; c["lat"] = None; c["lng"] = None
+                    coords = geocode_location(c["postal"], c["address"], c["name"], cache)
+                    if coords: c["lat"], c["lng"] = coords
 
-
-        if c.get("lat") and c.get("lng"):
-            if not (1.1 <= c["lat"] <= 1.5 and 103.5 <= c["lng"] <= 104.2):
-                print(f"Geofence triggered for {c['name']} — forcing SG search...")
-                c["place_id"] = ""; c["lat"] = None; c["lng"] = None
-                coords = geocode_location(c["postal"], c["address"], c["name"], cache)
-                if coords: c["lat"], c["lng"] = coords
-
+        # Assign reviews from cache if available
         if c.get("place_id") and c["place_id"] in reviews_cache:
             c["reviews"] = reviews_cache[c["place_id"]]
         time.sleep(0.05)
 
+    # --- END OF CLINICS LOOP ---
+
     if discrepancies:
         with open('data_discrepancies.csv', 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=["ID", "Name", "Category", "Excel Rating", "API Rating", "Excel Reviews", "API Reviews"])
-            writer.writeheader(); writer.writerows(discrepancies)
+            writer.writeheader()
+            writer.writerows(discrepancies)
         print(f"Report: Found {len(discrepancies)} data discrepancies. Saved to data_discrepancies.csv")
     else:
         print("Report: No data discrepancies found.")
 
-    try: CACHE_FILE.write_text(json.dumps({k: v for k, v in cache.items()}, indent=2))
-    except Exception: pass
+    try: 
+        CACHE_FILE.write_text(json.dumps({k: v for k, v in cache.items()}, indent=2))
+    except Exception: 
+        pass
 
     valid_clinics = [c for c in clinics if c["lat"] is not None and c["lng"] is not None]
     seen_coords = set()

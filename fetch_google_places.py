@@ -95,7 +95,33 @@ def main():
                 
                 # Get the operating hours!
                 regular_hours = place.get('regularOpeningHours', {})
-                hours_desc = "\n".join(regular_hours.get('weekdayDescriptions', []))
+                                # Get the operating hours in 24-hour format for build_map.py
+                periods = regular_hours.get('periods', [])
+                day_map = {0: "Sunday", 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday"}
+                sched = {d: "Closed" for d in day_map.values()}
+                
+                for p in periods:
+                    o_day = p['open']['day']
+                    o_hour = p['open']['hour']
+                    o_min = p['open']['minute']
+                    
+                    day_name = day_map[o_day]
+                    
+                    if 'close' in p:
+                        c_hour = p['close']['hour']
+                        c_min = p['close']['minute']
+                        time_str = f"{o_hour:02d}:{o_min:02d}-{c_hour:02d}:{c_min:02d}"
+                    else:
+                        # If there is no closing time, it means it's open 24 hours
+                        time_str = "00:00-23:59"
+                    
+                    if sched[day_name] == "Closed":
+                        sched[day_name] = time_str
+                    else:
+                        sched[day_name] += f", {time_str}"
+                
+                # Format it the way build_map.py wants: "Monday: 09:00-18:00; Tuesday: 09:00-18:00..."
+                hours_desc = "; ".join([f"{day}: {time}" for day, time in sched.items()])
                 
                 print(f"    -> Processing: {name}...")
                 fb, ig = find_social_links(website)
