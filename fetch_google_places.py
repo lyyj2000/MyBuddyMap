@@ -4,7 +4,7 @@ import time
 import re
 
 # PASTE YOUR API KEY HERE
-API_KEY = "AIzaSyBQpDyF91lv1xy9E9d9lHcG_o7YV1qHD4Q"
+API_KEY =  "YOUR_API_KEY_HERE"
 
 SEARCH_QUERIES = [
     "pet groomer", "pet grooming", "dog groomer", 
