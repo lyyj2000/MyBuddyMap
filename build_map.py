@@ -734,9 +734,57 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .popup .rating { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: #F59E0B; margin-bottom: 8px; }
 .popup .rating span { color: #9CA3AF; font-weight: 500; font-size: 12px; }
 
-.popup-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; border-top: 1px solid #E5E7EB; padding-top: 16px; }
-.popup-btn { display: block; text-align: center; padding: 10px; border-radius: 8px; text-decoration: none; color: #fff !important; font-size: 13px; font-weight: 600; transition: opacity 0.2s; cursor: pointer;}
-.popup-btn:hover { opacity: 0.9; }
+/* NEW MINIMALIST GRID */
+.popup-actions { margin-top: 16px; border-top: 1px solid #E5E7EB; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+}
+.action-grid .popup-btn {
+    width: 100%;
+    padding: 8px 4px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid #CBD5E1;
+    background: #F8FAFC;
+    color: #334155 !important;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: 0.2s;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+.action-grid .popup-btn:hover {
+    background: #E2E8F0;
+    border-color: #94A3B8;
+}
+.call-btn-main {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: none;
+    background: #1E293B;
+    color: white !important;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+.call-btn-main:hover {
+    background: #0F172A;
+}
 
 .transport-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .trans-btn { border: none; font-weight: 600; padding: 8px 12px; border-radius: 6px; font-family: inherit; cursor: pointer; font-size: 12px; flex: 1; text-align: center; text-decoration: none; display: block;}
@@ -1063,11 +1111,10 @@ function popupHTML(c, st) {
   const color = st.key==="open" ? "#10B981" : "#9CA3AF";
   
   let actionLinks = "";
-  actionLinks += `<button class="popup-btn" onclick="openReportModal('${c.id}', '${c.name.replace(/'/g, "\\'")}')" style="background:#F59E0B; color:white; border:none; cursor:pointer; padding:6px 10px; border-radius:4px; margin-top:8px; width:100%; font-weight:bold;">📝 Update Info</button>`;
-    // --- Directions Link ---
+
+  // --- Directions & Search URLs ---
   const destQuery = encodeURIComponent(`${c.name} ${c.address} Singapore ${c.postal}`);
   const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${destQuery}`;
-  let dirBtn = `<a class="popup-btn" href="${dirUrl}" target="_blank" style="background:#4285F4;">🚗 Directions</a>`;
   const searchQuery = encodeURIComponent(`${c.name} ${c.address} Singapore`);
   const gUrl = `https://www.google.com/search?q=${searchQuery}`;
 
@@ -1086,31 +1133,28 @@ function popupHTML(c, st) {
   
   let hasWebsite = c.booking && !isWhatsApp(c.booking);
 
-  if (c.category === "Vet" || c.category === "Groomer" || c.category === "Training") {
-      if (hasWebsite) {
-          actionLinks += `<a class="popup-btn" href="${esc(getRootUrl(c.booking))}" target="_blank" style="background:#3B82F6;">🌐 Visit Website</a>`;
-      } else {
-          actionLinks += `<a class="popup-btn" href="${gUrl}" target="_blank" style="background:#F59E0B;">📖 More Details</a>`;
-      }
-  } else if (c.category === "Mall") {
-      if (hasWebsite) {
-          actionLinks += `<a class="popup-btn" href="${esc(getRootUrl(c.booking))}" target="_blank" style="background:#8B5CF6;">🌐 Visit Website</a>`;
-      } else {
-          actionLinks += `<a class="popup-btn" href="${gUrl}" target="_blank" style="background:#8B5CF6;">📖 More Details</a>`;
-      }
-  } else if (["Asian", "Western", "Cafe", "Dine"].includes(c.category)) {
-      actionLinks += `<a class="popup-btn" href="${gUrl}" target="_blank" style="background:#EC4899;">📖 View Menu</a>`;
-      if (hasWebsite) {
-          actionLinks += `<a class="popup-btn" href="${esc(getRootUrl(c.booking))}" target="_blank" style="background:#1A1A1A;">🌐 Visit Website</a>`;
-      }
-  }
+  // --- NEW BUTTON LOGIC ---
+  let btnDirections = `<a class="popup-btn" href="${dirUrl}" target="_blank">🚗 Directions</a>`;
+  let btnUpdate = `<button class="popup-btn" onclick="openReportModal('${c.id}', '${c.name.replace(/'/g, "\\'")}')">📝 Update Info</button>`;
+  
+  let btnWhatsApp = waLink ? `<a class="popup-btn" href="${waLink}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '';
+  let btnDetails = hasWebsite ? `<a class="popup-btn" href="${getRootUrl(c.booking)}" target="_blank" rel="noopener">🌐 Details</a>` : `<a class="popup-btn" href="${gUrl}" target="_blank">🔍 Search</a>`;
 
-  let phoneNum = getTelLink(c.phone);
-  let contactHTML = `
-    ${waLink ? `<a class="popup-btn" href="${esc(waLink)}" target="_blank" style="background:#25D366;">💬 WhatsApp</a>` : ''}
-    ${c.phone ? `<a class="popup-btn" href="tel:${phoneNum}" onclick="handleCall(event, '${phoneNum}')" style="background:#1A1A1A;">📞 Call ${esc(c.phone.split('/')[0].trim())}</a>` : ''}
+  // Put the 4 buttons in a 2x2 grid
+  actionLinks += `
+    <div class="action-grid">
+      ${btnDirections}
+      ${btnUpdate}
+      ${btnWhatsApp}
+      ${btnDetails}
+    </div>
   `;
+  
+  // Build the Call button (Full width)
+  let callBtnHTML = c.phone ? `<a class="call-btn-main" href="tel:${c.phone}">📞 Call ${c.phone}</a>` : '';
+  actionLinks += callBtnHTML;
 
+  // --- TRANSPORT BUTTONS (VETS ONLY) ---
   let transportHtml = "";
   if (c.category === "Vet") {
       transportHtml = `
@@ -1146,9 +1190,7 @@ function popupHTML(c, st) {
     <p>${esc(c.address)}<br>Singapore ${esc(c.postal)}</p>
     
     <div class="popup-actions">
-      ${dirBtn}
       ${actionLinks}
-      ${contactHTML}
     </div>
     ${transportHtml}
   </div>`;
