@@ -6,6 +6,7 @@
 <title>MyBuddy - Pet Passport</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <style>
   * { box-sizing: border-box; }
 
@@ -45,6 +46,18 @@
 
   .hidden { display: none !important; }
 
+  /* ---------- TOKEN WALLET (GREEN & GOLD) ---------- */
+  .token-wallet { background: #388E3C; border-radius: 12px;
+                  padding: 15px 20px; margin-bottom: 20px; color: #fff; position: relative; z-index: 10;
+                  box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3); display: flex; justify-content: space-between; align-items: center; }
+  .token-wallet-left { flex: 1; }
+  .token-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #FDE047; margin-bottom: 2px; }
+  .token-balance { font-size: 28px; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 8px; color: #FDE047; }
+  .token-icon { font-size: 24px; }
+  .token-wallet-btn { background: #fff; color: #D97706; border: none; padding: 8px 12px; border-radius: 8px;
+                      font-size: 12px; font-weight: 900; font-family: 'Baloo 2', cursive; cursor: pointer; transition: 0.2s; }
+  .token-wallet-btn:hover { background: #FFFBEB; transform: scale(1.05); }
+
   .social-checkboxes { margin-bottom: 15px; text-align: left; z-index: 10; position: relative; }
   .social-checkbox { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #2C3E50; }
   .social-checkbox input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: #388E3C; }
@@ -74,7 +87,7 @@
                  border-radius: 4px; flex-shrink: 0; margin-left: 10px; }
   .qr-position img, .qr-position canvas { width: 100%; height: 100%; display: block; }
 
-  .passport-body { display: flex; gap: 12px; margin-bottom: 10px; }
+  .passport-body { display: flex; gap: 12px; margin-bottom: 8px; }
   .passport-photo { width: 75px; height: 100px; object-fit: cover; border: 2px solid #ccc; background: #ddd;
                     border-radius: 4px; display: flex; align-items: center; justify-content: center;
                     font-size: 32px; font-weight: bold; color: #fff; flex-shrink: 0; }
@@ -82,9 +95,25 @@
   .passport-data { flex-grow: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; min-width: 0; }
   .data-group { display: flex; flex-direction: column; min-width: 0; }
   .data-group.full { grid-column: span 2; }
-  .data-label { font-size: 8px; color: #666; text-transform: uppercase; font-weight: bold; letter-spacing: .5px; }
-  .data-value { font-size: 12px; color: #111; font-weight: bold; text-transform: uppercase;
-                border-bottom: 1px solid #ddd; padding-bottom: 2px; min-height: 16px; overflow-wrap: anywhere; }
+  .data-label { font-size: 7px; color: #666; text-transform: uppercase; font-weight: bold; letter-spacing: .5px; }
+  .data-value { font-size: 11px; color: #111; font-weight: bold; text-transform: uppercase;
+                border-bottom: 1px solid #ddd; padding-bottom: 2px; min-height: 15px; word-break: break-word; }
+
+  /* ---------- EMERGENCY & MEDICAL PANEL ---------- */
+  .medical-panel {
+    background: rgba(255,255,255,0.7); border: 1px solid #C8E6C9; border-radius: 4px;
+    padding: 6px 8px; margin-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px;
+  }
+  .medical-panel .data-label { color: #388E3C; }
+  .medical-panel .data-value { border-bottom: none; font-size: 10px; color: #222; }
+
+  /* ---------- SIGNATURE & BARCODE ZONE ---------- */
+  .signature-zone { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; margin-top: 10px; }
+  .signature-box { width: 55%; border-top: 1px solid #999; padding-top: 2px; text-align: center;
+                   font-size: 7px; color: #666; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
+  
+  .barcode-box { height: 30px; width: 40%; display: flex; justify-content: flex-end; align-items: flex-end; }
+  .barcode-box svg { max-width: 100%; max-height: 100%; }
 
   .passport-mrz { background: #fff; padding: 6px 8px; border: 1px solid #ccc; font-family: 'Courier New', Courier, monospace;
                   font-size: 9px; font-weight: bold; color: #111; letter-spacing: .5px; line-height: 1.25;
@@ -93,11 +122,12 @@
 
   .passport-disclaimer { text-align: center; font-size: 7px; color: #888; text-transform: uppercase; letter-spacing: .5px; }
 
-  /* ---------- TIER SEAL ---------- */
+  /* ---------- TIER SEAL (Image) ---------- */
   .stamp-seal-img {
     position: absolute; top: -12px; right: -12px; width: 85px; height: 85px;
     z-index: 20; pointer-events: none; transform: rotate(15deg);
     filter: drop-shadow(0px 5px 8px rgba(0,0,0,0.4));
+    display: block;
   }
 
   /* ---------- LOST BANNER ---------- */
@@ -194,21 +224,27 @@
     @page { size: A4 portrait; margin: 10mm; }
     html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; display: block !important; }
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    
+
     body > *:not(#print-root):not(#poster-root) { display: none !important; }
+    #print-root, #poster-root { display: none !important; }
 
-    /* --- PASSPORT PRINT --- */
-    #print-root { display: block !important; }
-    .pet-card { width: 420px !important; margin: 0 auto !important; box-shadow: none !important; border: 2px solid #388E3C !important; }
-    .action-buttons { display: none !important; }
-    .skyline-bg { opacity: .15 !important; mix-blend-mode: normal !important; }
-    .travel-content { display: block !important; max-height: none !important; overflow: visible !important; }
-    details { display: block !important; }
-    details > summary { display: block !important; }
-    details > div { display: block !important; }
+    body.print-passport #print-root { display: block !important; }
+    body.print-passport #print-root .pet-card { 
+      width: 100% !important; max-width: 480px !important; margin: 0 auto !important;
+      box-shadow: none !important; border: 2px solid #388E3C !important;
+      display: block !important; page-break-inside: avoid !important; break-inside: avoid !important;
+    }
+    body.print-passport #print-root .passport-inner { display: block !important; }
+    body.print-passport #print-root .passport-body { display: flex !important; }
+    body.print-passport #print-root .passport-data { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 6px 10px !important; }
+    body.print-passport #print-root .action-buttons { display: none !important; }
+    body.print-passport #print-root .skyline-bg { opacity: .15 !important; mix-blend-mode: normal !important; }
+    
+    body.print-checklist #print-root .travel-content { display: block !important; max-height: none !important; overflow: visible !important; }
+    body.print-checklist #print-root details { display: block !important; }
+    body.print-checklist #print-root details > summary { display: block !important; }
 
-    /* --- LOST POSTER PRINT --- */
-    #poster-root { display: block !important; font-family: 'Baloo 2', cursive; text-align: center; }
+    body.print-poster #poster-root { display: block !important; font-family: 'Baloo 2', cursive; text-align: center; }
     .poster-container { border: 8px solid #E53935; border-radius: 12px; padding: 30px; max-width: 100%; height: 96vh; display: flex; flex-direction: column; justify-content: space-between; }
     .poster-header { font-size: 80px; font-weight: 900; color: #E53935; line-height: 1; margin: 0; letter-spacing: 4px; text-transform: uppercase; }
     .poster-name { font-size: 50px; font-weight: 800; margin: 10px 0 0; text-transform: uppercase; }
@@ -221,7 +257,6 @@
     .poster-qr { width: 120px; height: 120px; }
     .poster-qr-text { font-size: 16px; font-weight: 800; color: #64748B; text-transform: uppercase; text-align: left; line-height: 1.2; }
 
-    /* --- BLACK & WHITE MODE --- */
     .bw-mode .poster-container { border-color: #000 !important; }
     .bw-mode .poster-header { color: #000 !important; }
     .bw-mode .poster-details span { color: #000 !important; }
@@ -314,12 +349,12 @@
       <div class="social-checkbox">
         <input type="checkbox" id="follow-fb">
         <label for="follow-fb">Follow us on</label>
-        <a href="https://www.facebook.com/Mybuddy.sg" target="_blank">Facebook</a>
+        <a href="https://www.facebook.com/Mybuddy.sg" target="_blank" rel="noopener">Facebook</a>
       </div>
       <div class="social-checkbox">
         <input type="checkbox" id="follow-ig">
         <label for="follow-ig">Follow us on</label>
-        <a href="https://www.instagram.com/mybuddy_sg/" target="_blank">Instagram</a>
+        <a href="https://www.instagram.com/mybuddy_sg/" target="_blank" rel="noopener">Instagram</a>
       </div>
     </div>
 
@@ -338,13 +373,22 @@
 
   <div class="content">
     <h1>My Pet Passports</h1>
-    <p class="subtitle" id="user-email" style="color: #388E3C; font-weight: 800;"></p>
+    <p class="subtitle" id="user-email" style="color: #388E3C; font-weight: 800; margin-bottom: 15px;"></p>
     
+    <!-- TOKEN WALLET -->
+    <div class="token-wallet">
+      <div class="token-wallet-left">
+        <div class="token-label">MyBuddy Token Balance</div>
+        <div class="token-balance"><span class="token-icon">🪙</span> <span id="token-balance">0</span></div>
+      </div>
+      <button class="token-wallet-btn" onclick="showTokenInfo()">Earn / Redeem</button>
+    </div>
+
     <h3 style="margin-bottom:10px; color: #388E3C; font-weight: 800;">Registered Pets</h3>
     <div id="pets-list"></div>
 
     <div style="margin-top:20px; border-top:1px dashed #C8E6C9; padding-top:20px;">
-      <h3 style="margin-top:0; margin-bottom:10px; color: #388E3C; font-weight: 800;">Add a Pet (Standard)</h3>
+      <h3 style="margin-top:0; margin-bottom:10px; color: #388E3C; font-weight: 800;">Add a Pet (Red)</h3>
       
       <label style="font-size:12px; font-weight:800; color:#555;">Pet Photo</label>
       <input type="file" id="pet-photo-input" accept="image/*" style="padding: 8px; background: #F9FBF9;">
@@ -378,6 +422,27 @@
       <label style="font-size:12px; font-weight:800; color:#555;">Microchip Number (Optional)</label>
       <input type="text" id="pet-microchip" placeholder="15-digit ISO Microchip" maxlength="15">
 
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+            <label style="font-size:12px; font-weight:800; color:#555;">Owner Phone</label>
+            <input type="tel" id="pet-owner-phone" placeholder="+65 9123 4567" maxlength="20">
+        </div>
+        <div style="flex:1;">
+            <label style="font-size:12px; font-weight:800; color:#555;">Blood Type</label>
+            <input type="text" id="pet-blood" placeholder="e.g. DEA 1.1+" maxlength="15">
+        </div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+            <label style="font-size:12px; font-weight:800; color:#555;">Allergies</label>
+            <input type="text" id="pet-allergies" placeholder="e.g. Penicillin" maxlength="30">
+        </div>
+        <div style="flex:1;">
+            <label style="font-size:12px; font-weight:800; color:#555;">Markings</label>
+            <input type="text" id="pet-markings" placeholder="e.g. White chest" maxlength="30">
+        </div>
+      </div>
+
       <button id="btn-addpet" onclick="addPet()" style="margin-top:10px;">Add Pet</button>
     </div>
     
@@ -395,12 +460,44 @@
   let busy = false;
   let petsCache = [];
 
-  function esc(s) { return String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  // =====================================================================
+  //  CONFIGURATION
+  // =====================================================================
+  const TOKEN_THRESHOLD = 100; // <-- Change this to adjust the cost of upgrading to Silver
+
+  // =====================================================================
+  //  SANITIZATION HELPERS
+  // =====================================================================
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[c]));
+  }
+  function cleanText(v, maxLen) {
+    return String(v ?? "")
+      .replace(/[\u0000-\u001F\u007F\u200B-\u200F\u2028\u2029]/g, "")
+      .replace(/[<>{}\\]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, maxLen || 60);
+  }
   function num(v, fallback) { const n = Number(v); return Number.isFinite(n) ? n : (fallback === undefined ? 0 : fallback); }
   function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
-  function cleanText(v, maxLen) { return String(v??"").replace(/[\u0000-\u001F\u007F]/g, '').replace(/[<>{}\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, maxLen || 40); }
 
-  // --- MODALS ---
+  function calcAge(birthday) {
+    if (!birthday) return '—';
+    const bd = new Date(birthday + 'T00:00:00');
+    if (isNaN(bd.getTime())) return '—';
+    const diff = Date.now() - bd.getTime();
+    const yrs = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+    const mos = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24 * 30.44));
+    if (yrs > 0) return `${yrs}y ${mos}m`;
+    return `${mos}m`;
+  }
+
+  // =====================================================================
+  //  MODALS
+  // =====================================================================
   let alertOnOk = null, alertOnCancel = null;
   function showAlert(opts) {
     document.getElementById('alert-title').textContent = opts.title || '';
@@ -413,7 +510,7 @@
     document.getElementById('custom-alert').classList.remove('hidden');
   }
   function showCustomAlert(title, msg, okLabel, cb) { showAlert({ title, msg, okLabel, onOk: cb }); }
-  
+
   document.getElementById('alert-btn').addEventListener('click', () => {
     document.getElementById('custom-alert').classList.add('hidden');
     const cb = alertOnOk; alertOnOk = null; alertOnCancel = null; if (cb) cb();
@@ -423,6 +520,14 @@
     const cb = alertOnCancel; alertOnOk = null; alertOnCancel = null; if (cb) cb();
   });
 
+  window.showTokenInfo = function() {
+    showCustomAlert(
+      "🪙 MyBuddy Tokens",
+      `Engage with the MyBuddy Map to earn tokens:\n\n🤝 Refer a friend (+50)\n🐾 Host a park outing (+20)\n🚨 Help find a lost pet (+100)\n🏥 Review a clinic/cafe/groomer (+10)\n\nRedeem tokens for:\n🎁 Pet treats & toys\n⭐️ Premium features\n🎟️ Event discounts\n\nReach ${TOKEN_THRESHOLD} tokens or invite 3 friends to upgrade your pet to Silver for FREE!`,
+      "Let's Go!"
+    );
+  };
+
   function pickPet(pets, title, onPick) {
     const modal = document.getElementById('picker-modal');
     const list = document.getElementById('picker-list');
@@ -430,7 +535,7 @@
     list.innerHTML = '';
     pets.forEach(p => {
       const b = document.createElement('button');
-      b.className = 'picker-btn'; b.type = 'button'; b.textContent = p.name || 'Unnamed';
+      b.className = 'picker-btn'; b.type = 'button'; b.textContent = cleanText(p.name, 24) || 'Unnamed';
       b.addEventListener('click', () => { modal.classList.add('hidden'); onPick(p); });
       list.appendChild(b);
     });
@@ -439,20 +544,38 @@
   }
 
   window.showSecretaryInfo = function() {
-    showCustomAlert("What is the Pet Secretary? 📋", "It is your pet's personal assistant! Upgrading to Silver unlocks:\n\n🧮 Health Calculators\n✈️ Travel Checklists\n⏰ Smart Reminders\n💊 Daily Trackers\n\nHow to unlock for FREE:\nLog in 5 days in a row OR invite 3 friends!", "Got It!");
+    showCustomAlert(
+      "What is the Pet Secretary? 📋", 
+      `It is your pet's personal assistant! Upgrading to Silver unlocks:\n\n🧮 Health Calculators\n✈️ Travel Checklists\n⏰ Smart Reminders\n💊 Daily Trackers\n\nHow to unlock for FREE:\nEarn ${TOKEN_THRESHOLD} tokens by engaging on the map OR invite 3 friends!`, 
+      "Got It!"
+    );
   }
 
-  // --- SEALS ---
+  // =====================================================================
+  //  TIER SYSTEM
+  // =====================================================================
+  function tierKey(t) {
+    const k = String(t || '').toLowerCase();
+    if (k === 'silver') return 'silver';
+    if (k === 'gold' || k === 'platinum') return 'gold';
+    return 'red';
+  }
+  function tierLabel(t) {
+    const k = tierKey(t);
+    return k === 'gold' ? 'GOLD' : (k === 'silver' ? 'SILVER' : 'RED');
+  }
   function sealHTML(tier) {
-    const currentTier = String(tier || 'Standard').toLowerCase();
-    let fileName = 'seal-standard.png';
-    if (currentTier === 'silver') fileName = 'seal-silver.png';
-    else if (currentTier === 'gold' || currentTier === 'platinum') fileName = 'seal-gold.png';
-    return `<img src="${fileName}" class="stamp-seal-img" alt="${esc(tier)} Seal">`;
+    const key = tierKey(tier);
+    const files = { red: 'seal-red.png', silver: 'seal-silver.png', gold: 'seal-gold.png' };
+    const src = files[key] || files.red;
+    return `<img src="${src}" class="stamp-seal-img" alt="${esc(tierLabel(tier))} Seal" onerror="this.style.display='none'">`;
   }
 
-  // --- MRZ ---
-  function mrzChars(v, len) { return String(v??"").toUpperCase().replace(/[^A-Z0-9]/g, '<').padEnd(len, '<').slice(0, len); }
+  // =====================================================================
+  //  MRZ
+  // =====================================================================
+  const MRZ_LINE_LEN = 44;
+  function mrzChars(v, len) { return String(v ?? "").toUpperCase().replace(/[^A-Z0-9]/g, '<').padEnd(len, '<').slice(0, len); }
   function mrzCheckDigit(str) {
     const weights = [7, 3, 1]; let sum = 0;
     for (let i = 0; i < str.length; i++) {
@@ -463,55 +586,60 @@
     return String(sum % 10);
   }
   function two(n) { return String(n).padStart(2, '0'); }
-  function yymmdd(d) { return String(d.getFullYear()).slice(2) + two(d.getMonth()+1) + two(d.getDate()); }
-  
+  function yymmdd(d) { return String(d.getFullYear()).slice(-2) + two(d.getMonth() + 1) + two(d.getDate()); }
+
   function buildMRZ(pet) {
-    const rawName = String(pet.name || 'UNNAMED').toUpperCase().replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim() || 'UNNAMED';
+    let rawName = String(pet.name || 'UNNAMED').toUpperCase();
+    try { rawName = rawName.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch (e) {}
+    rawName = rawName.replace(/[^A-Z ]/g, ' ').replace(/\s+/g, ' ').trim() || 'UNNAMED';
     const words = rawName.split(' ');
     const nameField = words.length > 1 ? words[words.length - 1] + '<<' + words.slice(0, -1).join('<') : words[0];
-    const line1 = ('P<SGP<' + nameField).padEnd(44, '<').slice(0, 44);
+    const line1 = ('P<SGP<' + nameField).replace(/[^A-Z0-9<]/g, '<').padEnd(MRZ_LINE_LEN, '<').slice(0, MRZ_LINE_LEN);
 
     const docNo = mrzChars(String(pet.serial_number || 'MB000000').replace(/[^A-Z0-9]/g, ''), 9);
     const docCheck = mrzCheckDigit(docNo);
     const nat = 'SGP';
     let dob = '<<<<<<';
     if (pet.birthday && /^\d{4}-\d{2}-\d{2}$/.test(pet.birthday)) {
-      const d = new Date(pet.birthday + 'T00:00:00'); if (!isNaN(d)) dob = yymmdd(d);
+      const d = new Date(pet.birthday + 'T00:00:00');
+      if (!isNaN(d.getTime())) dob = yymmdd(d);
     }
     const dobCheck = mrzCheckDigit(dob);
     const sex = pet.sex === 'F' ? 'F' : 'M';
     const issue = pet.created_at ? new Date(pet.created_at) : new Date();
-    const expiryDate = new Date(isNaN(issue) ? Date.now() : issue.getTime()); expiryDate.setFullYear(expiryDate.getFullYear() + 10);
-    const exp = yymmdd(expiryDate);
-    const expCheck = mrzCheckDigit(exp);
-    const personal = ''.padEnd(14, '<');
-    const personalCheck = mrzCheckDigit(personal);
+    const base = isNaN(issue.getTime()) ? new Date() : issue;
+    const expDate = new Date(base.getTime()); expDate.setFullYear(expDate.getFullYear() + 10);
+    const exp = yymmdd(expDate); const expCheck = mrzCheckDigit(exp);
+    const personal = '<'.repeat(14); const personalCheck = mrzCheckDigit(personal);
     const composite = mrzCheckDigit(docNo + docCheck + dob + dobCheck + exp + expCheck + personal + personalCheck);
-    const line2 = (docNo + docCheck + nat + dob + dobCheck + sex + exp + expCheck + personal + personalCheck + composite).slice(0, 44);
+    
+    const line2 = (docNo + docCheck + nat + dob + dobCheck + sex + exp + expCheck + personal + personalCheck + composite).padEnd(MRZ_LINE_LEN, '<').slice(0, MRZ_LINE_LEN);
     return { line1, line2 };
   }
 
-  // --- TRAVEL CHECKLIST ---
+  // =====================================================================
+  //  TRAVEL CHECKLIST
+  // =====================================================================
   const TRAVEL_DATA = [
     { category: "1. Primary Identification & Health", items: [
-      { id: "microchip_cert", label: "ISO 11784/11785 Microchip Certificate (15-digit)" },
-      { id: "vhc", label: "Veterinary Health Certificate (issued within 7–14 days)" },
-      { id: "gov_endorse", label: "Government/Official Endorsement (e.g. AVS, USDA, DEFRA)" },
-      { id: "core_vax", label: "Core Vaccination Record (DHPP for dogs, FVRCP for cats)" }
+      { id: "microchip_cert", label: "ISO 11784/11785 Microchip Certificate" },
+      { id: "vhc", label: "Veterinary Health Certificate" },
+      { id: "gov_endorse", label: "Government/Official Endorsement" },
+      { id: "core_vax", label: "Core Vaccination Record" }
     ]},
     { category: "2. Specialized Rabies & Parasites", items: [
-      { id: "rabies_titre", label: "Rabies Neutralising Antibody Titre Test (FAVN/RNATT)" },
-      { id: "parasite_cert", label: "Parasite Treatment Certificate (Deworming & Fleas)" }
+      { id: "rabies_titre", label: "Rabies Titre Test (FAVN/RNATT)" },
+      { id: "parasite_cert", label: "Parasite Treatment Certificate" }
     ]},
     { category: "3. Permits & Legal Authorizations", items: [
       { id: "import_permit", label: "Destination Country Import Permit" },
       { id: "export_license", label: "Export License / Certificate" },
-      { id: "re_entry", label: "Re-entry / Import Permit (For returning home)" },
-      { id: "cites", label: "CITES Permit (If exotic/protected species)" }
+      { id: "re_entry", label: "Re-entry / Import Permit" },
+      { id: "cites", label: "CITES Permit" }
     ]},
     { category: "4. Transport & Travel Logistics", items: [
-      { id: "airline_booking", label: "Airline / Cargo Booking Confirmation" },
-      { id: "iata_declaration", label: "IATA Air Transport Declaration (Crate requirements)" }
+      { id: "airline_booking", label: "Airline / Cargo Booking" },
+      { id: "iata_declaration", label: "IATA Air Transport Declaration" }
     ]}
   ];
   const TOTAL_TRAVEL_ITEMS = TRAVEL_DATA.reduce((n, c) => n + c.items.length, 0);
@@ -519,10 +647,8 @@
   function generateTravelHTML(pet) {
     const saved = (pet.travel_checklist && typeof pet.travel_checklist === 'object') ? pet.travel_checklist : {};
     let checkedCount = 0;
-    let html = `<details class="travel-panel">
-        <summary>✈️ Travel Requirements <span style="font-size:10px; background:#E2E8F0; padding:2px 6px; border-radius:4px;">`;
     TRAVEL_DATA.forEach(cat => cat.items.forEach(item => { if (saved[item.id]) checkedCount++; }));
-    html += `${checkedCount}/${TOTAL_TRAVEL_ITEMS}</span></summary><div class="travel-content">`;
+    let html = `<details class="travel-panel"><summary>✈️ Travel Requirements <span style="font-size:10px; background:#E2E8F0; padding:2px 6px; border-radius:4px;">${checkedCount}/${TOTAL_TRAVEL_ITEMS}</span></summary><div class="travel-content">`;
     TRAVEL_DATA.forEach(cat => {
       html += `<div class="travel-category">${esc(cat.category)}</div>`;
       cat.items.forEach(item => {
@@ -543,13 +669,17 @@
     await db.from('pets').update({ travel_checklist: checklist }).eq('id', petId);
   }
 
-  // --- AUTHENTICATION ---
+  // =====================================================================
+  //  AUTHENTICATION & UPGRADES
+  // =====================================================================
   function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
   function setAuthBusy(state) { document.getElementById('btn-signup').disabled = state; document.getElementById('btn-signin').disabled = state; }
 
   async function checkUser() {
     const { data } = await db.auth.getSession();
-    if (data && data.session && data.session.user) { currentUser = data.session.user; await showDashboard(); await handleIncomingSave(); }
+    if (data && data.session && data.session.user) {
+      currentUser = data.session.user; await showDashboard(); await handleIncomingSave();
+    }
   }
   async function signUp() {
     if (busy) return;
@@ -582,16 +712,55 @@
     document.getElementById('auth-view').classList.add('hidden');
     document.getElementById('dashboard-view').classList.remove('hidden');
     document.getElementById('user-email').textContent = currentUser.email || '';
+    
     let { data: profile } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
     if (!profile) {
-      const { data: created } = await db.from('profiles').upsert({ id: currentUser.id, email: currentUser.email }, { onConflict: 'id' }).select().maybeSingle();
+      const { data: created } = await db.from('profiles').upsert({ id: currentUser.id, email: currentUser.email, tokens: 0 }, { onConflict: 'id' }).select().maybeSingle();
       profile = created;
     }
-    window.userProfile = profile || { login_streak: 0, referral_count: 0, referred_by: null };
-    await claimPendingReferral(); await trackLoginAndUpgrade(); await loadPets();
+    window.userProfile = profile || { login_streak: 0, referral_count: 0, referred_by: null, tokens: 0 };
+    
+    // Load Token Balance
+    document.getElementById('token-balance').textContent = num(window.userProfile.tokens, 0);
+
+    // Set up LIVE Realtime Subscription for Tokens
+    try {
+      db.channel('public:profiles')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + currentUser.id }, payload => {
+          if (payload.new.tokens !== undefined) {
+            document.getElementById('token-balance').textContent = payload.new.tokens;
+            window.userProfile.tokens = payload.new.tokens;
+            checkUpgradeCriteria(); // Re-check if they hit the threshold live!
+          }
+        }).subscribe();
+    } catch (e) { console.warn("Realtime tokens not active", e); }
+
+    await claimPendingReferral(); await checkUpgradeCriteria(); await loadPets();
   }
 
-  // --- REFERRAL & STREAK ---
+  // =====================================================================
+  //  TOKEN UPGRADE LOGIC
+  // =====================================================================
+  async function checkUpgradeCriteria() {
+    const p = window.userProfile; if (!p || !currentUser) return;
+    
+    const tokens = num(p.tokens, 0);
+    const referrals = num(p.referral_count, 0);
+    
+    // Check if they meet EITHER the token threshold OR the 3-friend referral goal
+    if (tokens >= TOKEN_THRESHOLD || referrals >= 3) {
+      await unlockSilver(`Goal Reached! 🎉`);
+    }
+  }
+
+  async function unlockSilver(reason) {
+    const { data: pets } = await db.from('pets').select('id').eq('owner_id', currentUser.id).in('tier', ['Standard', 'Red']);
+    if (!pets || pets.length === 0) return;
+    for (const pet of pets) { await db.from('pets').update({ tier: 'Silver' }).eq('id', pet.id); }
+    showCustomAlert(reason, "You've unlocked the Pet Secretary for all your pets!"); 
+    await loadPets();
+  }
+
   async function claimPendingReferral() {
     const pending = localStorage.getItem('mybuddy_pending_ref'); if (!pending) return;
     if (window.userProfile && window.userProfile.referred_by) { localStorage.removeItem('mybuddy_pending_ref'); return; }
@@ -599,30 +768,14 @@
     if (!error && data && data.ok) {
       localStorage.removeItem('mybuddy_pending_ref');
       const { data: fresh } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
-      if (fresh) window.userProfile = fresh;
+      if (fresh) { window.userProfile = fresh; document.getElementById('token-balance').textContent = num(fresh.tokens, 0); }
     } else if (!error && data && !data.ok) { localStorage.removeItem('mybuddy_pending_ref'); }
   }
 
-  async function trackLoginAndUpgrade() {
-    const p = window.userProfile; if (!p || !currentUser) return;
-    const today = new Date().toISOString().slice(0, 10); if (p.last_login_date === today) return;
-    const y = new Date(); y.setDate(y.getDate() - 1); const yesterday = y.toISOString().slice(0, 10);
-    const streak = (p.last_login_date === yesterday) ? num(p.login_streak) + 1 : 1;
-    await db.from('profiles').update({ login_streak: streak, last_login_date: today }).eq('id', currentUser.id);
-    p.login_streak = streak; p.last_login_date = today;
-    if (streak >= 5) await unlockSilver('5-Day Streak Complete! 🔥');
-  }
-  async function unlockSilver(reason) {
-    const { data: pets } = await db.from('pets').select('id').eq('owner_id', currentUser.id).eq('tier', 'Standard');
-    if (!pets || pets.length === 0) return;
-    for (const pet of pets) { await db.from('pets').update({ tier: 'Silver' }).eq('id', pet.id); }
-    showCustomAlert(reason, "You've unlocked the Pet Secretary for all your pets!");
-    await loadPets();
-  }
   window.copyReferralLink = function() {
     if (!currentUser) return;
     const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.id;
-    const done = () => showCustomAlert("Link Copied! 🎁", "Send this link to 3 friends to unlock the Pet Secretary!");
+    const done = () => showCustomAlert("Link Copied! 🎁", `Send this link to 3 friends to unlock the Pet Secretary!\n\n(You also earn +50 Tokens per friend!)`);
     const fallback = () => {
       const ta = document.createElement('textarea'); ta.value = link; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.select();
@@ -632,89 +785,45 @@
     if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(link).then(done).catch(fallback); } else { fallback(); }
   };
 
-  // --- LOST & FOUND ---
+  // =====================================================================
+  //  LOST & FOUND
+  // =====================================================================
   let lostLat = null, lostLng = null;
-
   window.getGeoLocation = function() {
     const btn = document.getElementById('lost-geo-btn');
-    if (!navigator.geolocation) {
-      return showCustomAlert('Not Supported', 'Geolocation is not supported by your browser.');
-    }
+    if (!navigator.geolocation) return showCustomAlert('Not Supported', 'Geolocation is not supported by your browser.');
     btn.textContent = '📍 Getting location...';
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        lostLat = pos.coords.latitude;
-        lostLng = pos.coords.longitude;
-        btn.textContent = '✅ Location Tagged';
-        btn.style.background = '#F0FDF4';
-        btn.style.color = '#15803D';
-        btn.style.borderColor = '#86EFAC';
-      },
-      (err) => {
-        btn.textContent = '📍 Tag Current GPS Location';
-        showCustomAlert('GPS Error', 'Could not get location. Please type the address manually.');
-      }
+      (pos) => { lostLat = pos.coords.latitude; lostLng = pos.coords.longitude; btn.textContent = '✅ Location Tagged'; btn.style.background = '#F0FDF4'; btn.style.color = '#15803D'; btn.style.borderColor = '#86EFAC'; },
+      (err) => { btn.textContent = '📍 Tag Current GPS Location'; showCustomAlert('GPS Error', 'Could not get location. Please type the address manually.'); }
     );
   };
-
   function openLostModal(petId) {
     const pet = petsCache.find(p => String(p.id) === String(petId)); if (!pet) return;
-    document.getElementById('lost-modal-title').textContent = '🚨 Report ' + pet.name + ' Lost';
-    document.getElementById('lost-location').value = ''; 
-    document.getElementById('lost-date').value = new Date().toISOString().slice(0, 10);
-    document.getElementById('lost-phone').value = ''; 
-    document.getElementById('lost-notes').value = '';
-    document.getElementById('lost-reward').value = '';
-    
+    document.getElementById('lost-modal-title').textContent = '🚨 Report ' + (cleanText(pet.name, 24) || 'Pet') + ' Lost';
+    document.getElementById('lost-location').value = ''; document.getElementById('lost-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('lost-phone').value = ''; document.getElementById('lost-notes').value = ''; document.getElementById('lost-reward').value = '';
     lostLat = null; lostLng = null;
-    const geoBtn = document.getElementById('lost-geo-btn');
-    geoBtn.textContent = '📍 Tag Current GPS Location';
-    geoBtn.style.background = ''; geoBtn.style.color = ''; geoBtn.style.borderColor = '';
-
+    const geoBtn = document.getElementById('lost-geo-btn'); geoBtn.textContent = '📍 Tag Current GPS Location'; geoBtn.style.background = ''; geoBtn.style.color = ''; geoBtn.style.borderColor = '';
     document.getElementById('lost-submit').onclick = () => submitLostReport(petId);
     document.getElementById('lost-cancel').onclick = () => document.getElementById('lost-modal').classList.add('hidden');
-    document.getElementById('lost-modal').classList.remove('hidden');
-    setTimeout(() => document.getElementById('lost-location').focus(), 50);
+    document.getElementById('lost-modal').classList.remove('hidden'); setTimeout(() => document.getElementById('lost-location').focus(), 50);
   }
-
   async function submitLostReport(petId) {
-    const location = cleanText(document.getElementById('lost-location').value, 80);
-    const date = document.getElementById('lost-date').value;
-    const phone = cleanText(document.getElementById('lost-phone').value, 20);
-    const notes = cleanText(document.getElementById('lost-notes').value, 200);
-    const reward = cleanText(document.getElementById('lost-reward').value, 20);
-
+    const location = cleanText(document.getElementById('lost-location').value, 80), date = document.getElementById('lost-date').value;
+    const phone = cleanText(document.getElementById('lost-phone').value, 20), notes = cleanText(document.getElementById('lost-notes').value, 200), reward = cleanText(document.getElementById('lost-reward').value, 20);
     if (!location) return showCustomAlert('Location required', 'Where was your pet last seen?');
     if (!date) return showCustomAlert('Date required', 'When was your pet last seen?');
     if (!phone) return showCustomAlert('Phone required', 'Please add a phone number.');
-
     const btn = document.getElementById('lost-submit'); btn.disabled = true; btn.textContent = 'Saving…';
-    
-    const { error } = await db.from('pets').update({
-      is_lost: true, 
-      lost_last_seen: location, 
-      lost_date: date, 
-      lost_contact_phone: phone, 
-      lost_notes: notes || null, 
-      lost_reward: reward || null,
-      lost_lat: lostLat,
-      lost_lng: lostLng,
-      found_date: null
-    }).eq('id', petId);
-
+    const { error } = await db.from('pets').update({ is_lost: true, lost_last_seen: location, lost_date: date, lost_contact_phone: phone, lost_notes: notes || null, lost_reward: reward || null, lost_lat: lostLat, lost_lng: lostLng, found_date: null }).eq('id', petId);
     btn.disabled = false; btn.textContent = '🚨 Report Lost';
     if (error) return showCustomAlert('Error', error.message);
-    
-    document.getElementById('lost-modal').classList.add('hidden');
-    showCustomAlert('Pet marked as lost 🚨', 'Your passport now shows a LOST banner with your contact details.');
-    await loadPets();
+    document.getElementById('lost-modal').classList.add('hidden'); showCustomAlert('Pet marked as lost 🚨', 'Your passport now shows a LOST banner with your contact details.'); await loadPets();
   }
-
   function markFound(petId) {
     const pet = petsCache.find(p => String(p.id) === String(petId));
-    showAlert({
-      title: 'Mark as found? 🎉', msg: 'This removes the LOST banner from ' + (pet ? pet.name + "'s" : 'the') + ' passport.',
-      okLabel: 'Yes, found!', cancelLabel: 'Cancel',
+    showAlert({ title: 'Mark as found? 🎉', msg: 'This removes the LOST banner from ' + (pet ? (cleanText(pet.name, 24) || 'the pet') + "'s" : 'the') + ' passport.', okLabel: 'Yes, found!', cancelLabel: 'Cancel',
       onOk: async () => {
         const { error } = await db.from('pets').update({ is_lost: false, found_date: new Date().toISOString() }).eq('id', petId);
         if (error) return showCustomAlert('Error', error.message);
@@ -722,18 +831,20 @@
       }
     });
   }
-
   function shareLostPost(petId) {
     const pet = petsCache.find(p => String(p.id) === String(petId)); if (!pet || !pet.is_lost) return;
     const url = 'https://lyyj2000.github.io/mybuddy-vet-finder/verify.html?serial=' + encodeURIComponent(pet.serial_number);
-    const msg = '🚨 LOST PET: ' + pet.name + ' (' + (pet.species || 'Pet') + ')\nLast seen: ' + (pet.lost_last_seen || '') + ' on ' + (pet.lost_date || '') + '\nContact: ' + (pet.lost_contact_phone || '') + '\n' + (pet.lost_reward ? 'Reward: ' + pet.lost_reward + '\n' : '') + (pet.lost_notes ? 'Notes: ' + pet.lost_notes + '\n' : '') + 'Passport: ' + url;
-    if (navigator.share) { navigator.share({ title: 'LOST PET: ' + pet.name, text: msg }).catch(() => {}); }
+    const msg = '🚨 LOST PET: ' + (cleanText(pet.name, 24) || 'Pet') + ' (' + (cleanText(pet.species, 20) || 'Pet') + ')\nLast seen: ' + (pet.lost_last_seen || '') + ' on ' + (pet.lost_date || '') + '\nContact: ' + (pet.lost_contact_phone || '') + '\n' + (pet.lost_reward ? 'Reward: ' + pet.lost_reward + '\n' : '') + (pet.lost_notes ? 'Notes: ' + pet.lost_notes + '\n' : '') + 'Passport: ' + url;
+    if (navigator.share) { navigator.share({ title: 'LOST PET: ' + (cleanText(pet.name, 24) || 'Pet'), text: msg }).catch(() => {}); }
     else if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(msg).then(() => showCustomAlert('Copied! 📋', 'Paste into WhatsApp to alert your community.')).catch(() => showCustomAlert('Share message', msg)); }
     else { showCustomAlert('Share message', msg); }
   }
 
+  // =====================================================================
+  //  RENDER PASSPORT CARDS
+  // =====================================================================
   function drawQRCodes(cardEl, pet) {
-    if (!pet || !pet.serial_number) return;
+    if (!cardEl || !pet || !pet.serial_number) return;
     const url = 'https://lyyj2000.github.io/mybuddy-vet-finder/verify.html?serial=' + encodeURIComponent(pet.serial_number);
     const headerBox = cardEl.querySelector('.qr-position');
     if (headerBox) { headerBox.innerHTML = ''; new QRCode(headerBox, { text: url, width: 50, height: 50, colorDark: '#111111', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); }
@@ -741,11 +852,33 @@
     if (lostBox) { lostBox.innerHTML = ''; new QRCode(lostBox, { text: url, width: 60, height: 60, colorDark: '#B71C1C', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); }
   }
 
-  // --- RENDER PASSPORTS ---
+  function drawBarcode(cardEl, pet) {
+    if (!pet || !pet.serial_number) return;
+    const barcodeBox = cardEl.querySelector('.barcode-box svg');
+    if (barcodeBox) {
+      try {
+        JsBarcode(barcodeBox, pet.serial_number, {
+          format: "CODE128", lineColor: "#111", width: 1.2, height: 25, displayValue: false, margin: 0
+        });
+      } catch (e) { console.warn("Barcode generation skipped", e); }
+    }
+  }
+
   function renderPetCard(pet) {
     const tier = pet.tier || 'Standard', key = tierKey(tier);
-    const serial = pet.serial_number || 'MB-000000', sex = pet.sex === 'F' ? 'F' : 'M';
-    const name = pet.name || 'UNNAMED', dob = pet.birthday || 'NOT SET', chip = pet.microchip || 'NOT PROVIDED';
+    const serial = cleanText(pet.serial_number, 20) || 'MB-000000';
+    const displayName = cleanText(pet.name, 24) || 'UNNAMED';
+    const species = cleanText(pet.species, 20) || 'DOG';
+    const sex = pet.sex === 'F' ? 'F' : 'M';
+    const dob = cleanText(pet.birthday, 20) || 'NOT SET';
+    const age = calcAge(pet.birthday);
+    const chip = cleanText(pet.microchip, 20) || 'NOT PROVIDED';
+    
+    const ownerPhone = cleanText(pet.owner_phone, 20) || 'Not set';
+    const bloodType = cleanText(pet.blood_type, 15) || 'Unknown';
+    const allergies = cleanText(pet.allergies, 30) || 'None';
+    const markings = cleanText(pet.markings, 30) || 'Not set';
+
     const issueDate = pet.created_at ? new Date(pet.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() : new Date().toLocaleDateString('en-GB').toUpperCase();
     const { line1, line2 } = buildMRZ(pet);
 
@@ -753,11 +886,11 @@
       <div class="lost-banner">
         <div class="lost-banner-text">
           <div class="lost-banner-title">🚨 LOST PET</div>
-          <div class="lost-banner-row"><strong>Last seen</strong> ${esc(pet.lost_last_seen || 'Unknown')}</div>
-          <div class="lost-banner-row"><strong>Date</strong> ${esc(pet.lost_date || 'Unknown')}</div>
-          ${pet.lost_reward ? `<div class="lost-banner-row" style="color:#FDE047"><strong>Reward</strong> ${esc(pet.lost_reward)}</div>` : ''}
-          <div class="lost-banner-row lost-banner-phone"><strong>Contact</strong> <a href="tel:${esc(pet.lost_contact_phone || '')}">${esc(pet.lost_contact_phone || '')}</a></div>
-          ${pet.lost_notes ? `<div class="lost-banner-row" style="font-style:italic; opacity:.9;">${esc(pet.lost_notes)}</div>` : ''}
+          <div class="lost-banner-row"><strong>Last seen</strong> ${esc(cleanText(pet.lost_last_seen, 80) || 'Unknown')}</div>
+          <div class="lost-banner-row"><strong>Date</strong> ${esc(cleanText(pet.lost_date, 20) || 'Unknown')}</div>
+          ${pet.lost_reward ? `<div class="lost-banner-row" style="color:#FDE047"><strong>Reward</strong> ${esc(cleanText(pet.lost_reward, 20))}</div>` : ''}
+          <div class="lost-banner-row lost-banner-phone"><strong>Contact</strong> <a href="tel:${esc(cleanText(pet.lost_contact_phone, 20))}">${esc(cleanText(pet.lost_contact_phone, 20) || '')}</a></div>
+          ${pet.lost_notes ? `<div class="lost-banner-row" style="font-style:italic; opacity:.9;">${esc(cleanText(pet.lost_notes, 200))}</div>` : ''}
         </div>
         <div class="lost-banner-qr"></div>
       </div>` : '';
@@ -768,12 +901,12 @@
          <button class="upgrade-btn lost-btn" data-action="print-poster" data-id="${esc(pet.id)}">📄 Print Lost Poster</button>`
       : `<button class="upgrade-btn lost-btn"  data-action="report-lost" data-id="${esc(pet.id)}">🚨 Report Lost</button>`;
 
-    const photoHTML = pet.photo_url ? `<img src="${esc(pet.photo_url)}" class="passport-photo" alt="Pet photo">` : `<div class="passport-photo" style="background:#4CAF50;">${esc((name.charAt(0) || '?').toUpperCase())}</div>`;
+    const photoHTML = pet.photo_url ? `<img src="${esc(pet.photo_url)}" class="passport-photo" alt="Pet photo">` : `<div class="passport-photo" style="background:#4CAF50;">${esc((displayName.charAt(0) || '?').toUpperCase())}</div>`;
 
     let secretaryHTML = '';
-    if (key === 'silver' || key === 'gold' || key === 'platinum') {
+    if (key === 'silver' || key === 'gold') {
       const weight = num(pet.weight, 0); let ageYrs = 0;
-      if (pet.birthday) { const bd = new Date(pet.birthday + 'T00:00:00'); if (!isNaN(bd)) ageYrs = (Date.now() - bd.getTime()) / (1000 * 60 * 60 * 24 * 365.25); }
+      if (pet.birthday) { const bd = new Date(pet.birthday + 'T00:00:00'); if (!isNaN(bd.getTime())) ageYrs = (Date.now() - bd.getTime()) / (1000 * 60 * 60 * 24 * 365.25); }
       let humanAge = '—', foodGrams = '—', waterMl = '—';
       if (weight > 0) { const mer = 70 * Math.pow(weight, 0.75) * 1.6; foodGrams = Math.round((mer / 350) * 100); waterMl = Math.round(weight * 60); }
       if (ageYrs > 0) humanAge = Math.round(ageYrs <= 2 ? ageYrs * 12 : 24 + (ageYrs - 2) * 5);
@@ -787,26 +920,32 @@
             <div class="secretary-box"><span>Weigh In</span><strong>${ageYrs < 1 ? 'Weekly' : 'Monthly'}</strong></div>
           </div>
           <div style="display:flex; gap:6px; margin-top:8px;">
-            <a href="index.html?category=Vet" target="_blank" style="flex:1; text-align:center; background:#3B82F6; color:#fff; text-decoration:none; padding:8px; font-size:11px; border-radius:6px; font-weight:bold;">🏥 Find Vets</a>
-            <a href="index.html?category=Groomer" target="_blank" style="flex:1; text-align:center; background:#F59E0B; color:#fff; text-decoration:none; padding:8px; font-size:11px; border-radius:6px; font-weight:bold;">✂️ Book Groomer</a>
+            <a href="index.html?category=Vet" target="_blank" rel="noopener" style="flex:1; text-align:center; background:#3B82F6; color:#fff; text-decoration:none; padding:8px; font-size:11px; border-radius:6px; font-weight:bold;">🏥 Find Vets</a>
+            <a href="index.html?category=Groomer" target="_blank" rel="noopener" style="flex:1; text-align:center; background:#F59E0B; color:#fff; text-decoration:none; padding:8px; font-size:11px; border-radius:6px; font-weight:bold;">✂️ Book Groomer</a>
           </div>
         </div>`;
     }
 
     let upgradeBtnHTML = '';
-    if (key === 'standard') {
-      const streak = clamp(num(window.userProfile && window.userProfile.login_streak, 0), 0, 5);
+    if (key === 'red') {
+      const tokens = clamp(num(window.userProfile && window.userProfile.tokens, 0), 0, TOKEN_THRESHOLD);
       const referrals = clamp(num(window.userProfile && window.userProfile.referral_count, 0), 0, 3);
       upgradeBtnHTML = `
         <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:12px; margin-bottom:8px; font-family:Arial, sans-serif;">
           <div style="text-align:center; font-weight:800; color:#388E3C; font-size:14px; margin-bottom:4px;">🔓 Unlock the Pet Secretary</div>
           <div style="text-align:center; font-size:11px; color:#64748B; margin-bottom:12px; line-height:1.4;">Get health calculators, travel checklists, and automated reminders!</div>
           <div style="text-align:center; margin-bottom:12px;"><a href="javascript:void(0)" onclick="window.showSecretaryInfo()" style="font-size:11px; font-weight:800; color:#3B82F6; text-decoration:underline;">Learn More / View Benefits</a></div>
-          <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;"><span>🔥 5-Day Login Streak</span> <span>Day ${streak} of 5</span></div>
-          <div style="width:100%; background:#E2E8F0; border-radius:99px; height:8px; margin-bottom:12px;"><div style="width:${(streak / 5) * 100}%; background:#F59E0B; height:8px; border-radius:99px;"></div></div>
+          
+          <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;"><span>🪙 Earn ${TOKEN_THRESHOLD} Tokens</span> <span>${tokens} of ${TOKEN_THRESHOLD}</span></div>
+          <div style="width:100%; background:#E2E8F0; border-radius:99px; height:8px; margin-bottom:12px;"><div style="width:${(tokens / TOKEN_THRESHOLD) * 100}%; background:#F59E0B; height:8px; border-radius:99px;"></div></div>
+          
           <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;"><span>👥 Invite 3 Friends</span> <span>${referrals} of 3</span></div>
           <div style="width:100%; background:#E2E8F0; border-radius:99px; height:8px; margin-bottom:12px;"><div style="width:${(referrals / 3) * 100}%; background:#3B82F6; height:8px; border-radius:99px;"></div></div>
-          <button onclick="copyReferralLink()" style="width:100%; padding:8px; background:#3B82F6; color:#fff; border:none; border-radius:6px; font-weight:800; font-family:'Baloo 2', cursive; cursor:pointer;">🎁 Invite Friends to Unlock Now</button>
+          
+          <div style="display:flex; gap:6px; margin-top:10px;">
+            <a href="index.html" style="flex:1; text-align:center; background:#388E3C; color:#fff; text-decoration:none; padding:8px; border-radius:6px; font-weight:800; font-size:12px; box-sizing:border-box;">🗺️ Go to Map</a>
+            <button onclick="copyReferralLink()" style="flex:1; padding:8px; background:#3B82F6; color:#fff; border:none; border-radius:6px; font-weight:800; font-family:'Baloo 2', cursive; cursor:pointer; font-size:12px;">🎁 Invite Friends</button>
+          </div>
         </div>`;
     }
 
@@ -826,16 +965,29 @@
               <div class="data-group"><span class="data-label">Type</span><span class="data-value">P</span></div>
               <div class="data-group"><span class="data-label">Issuer</span><span class="data-value">MBY</span></div>
               <div class="data-group"><span class="data-label">Passport No.</span><span class="data-value">${esc(serial)}</span></div>
-              <div class="data-group"><span class="data-label">Tier</span><span class="data-value">${esc(tier)}</span></div>
-              <div class="data-group full"><span class="data-label">Name</span><span class="data-value">${esc(name)}</span></div>
-              <div class="data-group"><span class="data-label">Species</span><span class="data-value">${esc(pet.species || 'DOG')}</span></div>
-              <div class="data-group"><span class="data-label">Sex</span><span class="data-value">${esc(sex)}</span></div>
-              <div class="data-group"><span class="data-label">DOB</span><span class="data-value">${esc(dob)}</span></div>
+              <div class="data-group"><span class="data-label">Tier</span><span class="data-value">${esc(tierLabel(tier))}</span></div>
+              <div class="data-group full"><span class="data-label">Name</span><span class="data-value">${esc(displayName)}</span></div>
+              <div class="data-group"><span class="data-label">Species / Sex</span><span class="data-value">${esc(species)} / ${esc(sex)}</span></div>
               <div class="data-group"><span class="data-label">Microchip</span><span class="data-value">${esc(chip)}</span></div>
-              <div class="data-group full"><span class="data-label">Preferred Vet</span><span class="data-value" style="font-size:10px; color:#3B82F6;">${esc(pet.preferred_vet || 'Not set')}</span></div>
-              <div class="data-group full"><span class="data-label">Preferred Groomer</span><span class="data-value" style="font-size:10px; color:#F59E0B;">${esc(pet.preferred_groomer || 'Not set')}</span></div>
+              <div class="data-group"><span class="data-label">DOB</span><span class="data-value">${esc(dob)}</span></div>
+              <div class="data-group"><span class="data-label">Age</span><span class="data-value">${esc(age)}</span></div>
             </div>
           </div>
+
+          <!-- EMERGENCY & MEDICAL GRID -->
+          <div class="medical-panel">
+            <div class="data-group"><span class="data-label">Owner Contact</span><span class="data-value">${esc(ownerPhone)}</span></div>
+            <div class="data-group"><span class="data-label">Blood Type</span><span class="data-value">${esc(bloodType)}</span></div>
+            <div class="data-group"><span class="data-label">Allergies</span><span class="data-value">${esc(allergies)}</span></div>
+            <div class="data-group"><span class="data-label">Markings</span><span class="data-value">${esc(markings)}</span></div>
+          </div>
+
+          <!-- SIGNATURE & BARCODE -->
+          <div class="signature-zone">
+            <div class="barcode-box"><svg class="barcode"></svg></div>
+            <div class="signature-box">Holder's Signature</div>
+          </div>
+
           <div class="passport-mrz"><div>${esc(line1)}</div><div>${esc(line2)}</div></div>
           ${secretaryHTML}
           ${generateTravelHTML(pet)}
@@ -850,8 +1002,9 @@
       </div>`;
   }
 
-  function tierKey(t) { const k = String(t||'').toLowerCase(); return (k === 'silver' || k === 'gold' || k === 'platinum') ? k : 'standard'; }
-
+  // =====================================================================
+  //  LOAD PETS
+  // =====================================================================
   async function loadPets() {
     const list = document.getElementById('pets-list');
     list.innerHTML = "<p style='text-align:center;color:#90A4AE;font-weight:600;'>Loading pets…</p>";
@@ -860,13 +1013,16 @@
     petsCache = pets || [];
     if (!petsCache.length) { list.innerHTML = "<p style='color:#90A4AE;font-weight:600;text-align:center;background:#fff;padding:10px;border-radius:8px;'>No pets yet. Add one below!</p>"; return; }
     list.innerHTML = petsCache.map(renderPetCard).join('');
+    
     petsCache.forEach(pet => {
       const card = document.getElementById('pet-card-' + pet.id);
-      if (card) drawQRCodes(card, pet);
+      if (card) { drawQRCodes(card, pet); drawBarcode(card, pet); }
     });
   }
 
-  // --- EVENT DELEGATION ---
+  // =====================================================================
+  //  EVENT DELEGATION
+  // =====================================================================
   document.getElementById('pets-list').addEventListener('click', e => {
     const btn = e.target.closest('[data-action]'); if (!btn) return;
     const id = btn.dataset.id, action = btn.dataset.action;
@@ -881,90 +1037,104 @@
     if (e.target.classList.contains('travel-checkbox')) saveTravelChecklist(e.target.dataset.petid);
   });
 
-  // --- PRINT PASSPORT ---
+  // =====================================================================
+  //  PRINT PASSPORT
+  // =====================================================================
+  function waitForImages(container) {
+    const imgs = Array.from(container.querySelectorAll('img'));
+    return Promise.all(imgs.map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(res => { img.onload = res; img.onerror = res; });
+    }));
+  }
+
   function printPassport(petId) {
     const card = document.getElementById('pet-card-' + petId); if (!card) return;
     const pet = petsCache.find(p => String(p.id) === String(petId));
+
     showAlert({
-      title: '💡 Save as PDF', msg: "When the print window opens, change 'Destination' to 'Save as PDF'.",
-      okLabel: 'Print / Save PDF', cancelLabel: 'Cancel',
-      onOk: () => {
-        const root = document.getElementById('print-root'); root.innerHTML = '';
-        const clone = card.cloneNode(true); clone.removeAttribute('id');
-        clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-        root.appendChild(clone);
-        clone.querySelectorAll('.qr-position, .lost-banner-qr').forEach(box => { box.innerHTML = ''; });
-        drawQRCodes(clone, pet);
-        clone.querySelectorAll('details').forEach(d => d.setAttribute('open', ''));
-        setTimeout(() => { window.print(); setTimeout(() => { root.innerHTML = ''; }, 600); }, 150);
-      }
+      title: '🖨️ Print Settings',
+      msg: "Do you want to include the full Travel Checklist in the printout?\n\nClick 'Print Passport' to keep it collapsed, or 'Include Checklist' to print it fully expanded.",
+      okLabel: 'Include Checklist',
+      cancelLabel: 'Print Passport',
+      onOk: () => doPrintPassport(card, pet, true),
+      onCancel: () => doPrintPassport(card, pet, false)
     });
   }
 
-  // --- PRINT LOST POSTER ---
-  function openPosterModal(petId) {
-    const pet = petsCache.find(p => String(p.id) === String(petId)); 
-    if (!pet || !pet.is_lost) return;
+  async function doPrintPassport(card, pet, includeChecklist) {
+    const root = document.getElementById('print-root');
+    root.innerHTML = '';
 
+    const clone = card.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(el => {
+      if (el.namespaceURI === 'http://www.w3.org/2000/svg') return;
+      el.removeAttribute('id');
+    });
+
+    clone.querySelectorAll('.action-buttons').forEach(el => el.remove());
+    clone.querySelectorAll('.qr-position, .lost-banner-qr').forEach(box => { box.innerHTML = ''; });
+    
+    if (includeChecklist) {
+      clone.querySelectorAll('details').forEach(d => d.setAttribute('open', ''));
+    }
+
+    root.appendChild(clone);
+
+    if (pet) {
+      drawQRCodes(clone, pet);
+      drawBarcode(clone, pet);
+    }
+
+    await waitForImages(root);
+
+    if (includeChecklist) document.body.classList.add('print-checklist');
+    document.body.classList.add('print-passport');
+
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('print-passport');
+        document.body.classList.remove('print-checklist');
+        root.innerHTML = '';
+      }, 700);
+    }, 150);
+  }
+
+  // =====================================================================
+  //  PRINT LOST POSTER
+  // =====================================================================
+  function openPosterModal(petId) {
+    const pet = petsCache.find(p => String(p.id) === String(petId)); if (!pet || !pet.is_lost) return;
     const root = document.getElementById('poster-root');
     const photo = pet.photo_url || 'https://via.placeholder.com/400x400?text=NO+PHOTO';
-    const cleanPhone = (pet.lost_contact_phone || '').replace(/[^0-9+]/g, '');
-    const breed = pet.species ? pet.species.toUpperCase() : 'PET';
-    
+    const breed = cleanText(pet.species, 20).toUpperCase() || 'PET';
     root.innerHTML = `
       <div class="poster-container">
-        <div>
-          <h1 class="poster-header">LOST PET</h1>
-          <h2 class="poster-name">${esc(pet.name)} - ${esc(breed)}</h2>
-        </div>
-        
+        <div><h1 class="poster-header">LOST PET</h1><h2 class="poster-name">${esc(cleanText(pet.name, 24) || 'UNNAMED')} - ${esc(breed)}</h2></div>
         <img src="${esc(photo)}" class="poster-photo" alt="Lost Pet">
-        
-        <div class="poster-details">
-          Last Seen: <span>${esc(pet.lost_last_seen || 'Unknown')}</span><br>
-          Date: <span>${esc(pet.lost_date || 'Unknown')}</span>
-        </div>
-
-        ${pet.lost_reward ? `<div class="poster-reward">REWARD: ${esc(pet.lost_reward)}</div>` : ''}
-        
-        <div class="poster-contact">
-          CALL: ${esc(pet.lost_contact_phone || '')}
-        </div>
-        
-        <div class="poster-qr-wrapper">
-          <div class="poster-qr" id="poster-qr-${esc(pet.id)}"></div>
-          <div class="poster-qr-text">SCAN WITH<br>PHONE CAMERA<br>FOR DETAILS</div>
-        </div>
-      </div>
-    `;
-
+        <div class="poster-details">Last Seen: <span>${esc(cleanText(pet.lost_last_seen, 80) || 'Unknown')}</span><br>Date: <span>${esc(cleanText(pet.lost_date, 20) || 'Unknown')}</span></div>
+        ${pet.lost_reward ? `<div class="poster-reward">REWARD: ${esc(cleanText(pet.lost_reward, 20))}</div>` : ''}
+        <div class="poster-contact">CALL: ${esc(cleanText(pet.lost_contact_phone, 20) || '')}</div>
+        <div class="poster-qr-wrapper"><div class="poster-qr" id="poster-qr-${esc(pet.id)}"></div><div class="poster-qr-text">SCAN WITH<br>PHONE CAMERA<br>FOR DETAILS</div></div>
+      </div>`;
     const qrBox = document.getElementById(`poster-qr-${pet.id}`);
-    const url = 'https://lyyj2000.github.io/mybuddy-vet-finder/verify.html?serial=' + encodeURIComponent(pet.serial_number);
-    new QRCode(qrBox, { text: url, width: 120, height: 120, colorDark: '#111111', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-
-    showAlert({
-      title: '🖨️ Print Poster',
-      msg: "Do you want to print a full-color poster or a black & white version? (B&W uses less ink but still scans perfectly).",
-      okLabel: 'Color Poster',
-      cancelLabel: 'Black & White',
-      onOk: () => { root.classList.remove('bw-mode'); doPrint(); },
-      onCancel: () => { root.classList.add('bw-mode'); doPrint(); }
-    });
-
-    function doPrint() {
-      root.classList.remove('hidden');
-      setTimeout(() => {
-        window.print();
-        setTimeout(() => { 
-          root.classList.add('hidden'); 
-          root.innerHTML = ''; 
-          root.classList.remove('bw-mode');
-        }, 600);
-      }, 150);
-    }
+    if (qrBox) { const url = 'https://lyyj2000.github.io/mybuddy-vet-finder/verify.html?serial=' + encodeURIComponent(pet.serial_number); new QRCode(qrBox, { text: url, width: 120, height: 120, colorDark: '#111111', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H }); }
+    showAlert({ title: '🖨️ Print Poster', msg: "Full-color or black & white?", okLabel: 'Color Poster', cancelLabel: 'Black & White', onOk: () => doPrintPoster(root, false), onCancel: () => doPrintPoster(root, true) });
+  }
+  async function doPrintPoster(root, bw) {
+    root.classList.toggle('bw-mode', bw);
+    root.classList.remove('hidden');
+    await waitForImages(root); await new Promise(r => setTimeout(r, 100));
+    document.body.classList.add('print-poster');
+    window.print();
+    setTimeout(() => { document.body.classList.remove('print-poster'); root.classList.add('hidden'); root.innerHTML = ''; root.classList.remove('bw-mode'); }, 700);
   }
 
-  // --- CRUD ---
+  // =====================================================================
+  //  CRUD
+  // =====================================================================
   function resizeImage(file, maxSize) {
     maxSize = maxSize || 400;
     return new Promise((resolve, reject) => {
@@ -994,51 +1164,71 @@
     const birthday = document.getElementById('pet-birthday').value;
     const weightRaw = document.getElementById('pet-weight').value;
     const microchip = document.getElementById('pet-microchip').value.replace(/\D/g, '');
+    const ownerPhone = cleanText(document.getElementById('pet-owner-phone').value, 20);
+    const bloodType = cleanText(document.getElementById('pet-blood').value, 15);
+    const allergies = cleanText(document.getElementById('pet-allergies').value, 30);
+    const markings = cleanText(document.getElementById('pet-markings').value, 30);
     const fileInput = document.getElementById('pet-photo-input');
+
     if (!name) return showCustomAlert('Hold on', 'Please enter a pet name.');
     if (microchip && microchip.length !== 15) return showCustomAlert('Check the microchip', 'Must be exactly 15 digits.');
+
     const weight = weightRaw ? clamp(num(weightRaw, 0), 0, 200) : null;
+
     busy = true; btn.disabled = true; btn.textContent = 'Creating passport…';
+
     try {
       let photoBase64 = null;
-      if (fileInput.files && fileInput.files.length) { try { photoBase64 = await resizeImage(fileInput.files[0], 400); } catch (err) { return showCustomAlert('Photo error', err.message); } }
+      if (fileInput.files && fileInput.files.length) {
+        try { photoBase64 = await resizeImage(fileInput.files[0], 400); } catch (err) { return showCustomAlert('Photo error', err.message); }
+      }
+
       const serialNumber = 'MB-' + Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, 'X');
-      const { error } = await db.from('pets').insert([{ owner_id: currentUser.id, name, species, sex, birthday: birthday || null, weight, microchip: microchip || null, photo_url: photoBase64, serial_number: serialNumber, tier: 'Standard', travel_checklist: {} }]);
+
+      const { error } = await db.from('pets').insert([{
+        owner_id: currentUser.id, name, species, sex, birthday: birthday || null, weight, microchip: microchip || null,
+        owner_phone: ownerPhone || null, blood_type: bloodType || null, allergies: allergies || null, markings: markings || null,
+        photo_url: photoBase64, serial_number: serialNumber, tier: 'Standard', travel_checklist: {}
+      }]);
+
       if (error) return showCustomAlert('Error', error.message);
-      ['pet-name', 'pet-birthday', 'pet-weight', 'pet-microchip', 'pet-photo-input'].forEach(id => document.getElementById(id).value = '');
-      showCustomAlert('Passport Issued! 🛂', 'Your standard digital passport has been generated.'); await loadPets();
-    } finally { busy = false; btn.disabled = false; btn.textContent = 'Add Pet'; }
+
+      ['pet-name', 'pet-birthday', 'pet-weight', 'pet-microchip', 'pet-owner-phone', 'pet-blood', 'pet-allergies', 'pet-markings', 'pet-photo-input']
+        .forEach(id => { document.getElementById(id).value = ''; });
+
+      showCustomAlert('Passport Issued! 🛂', 'Your digital passport has been generated.');
+      await loadPets();
+    } finally {
+      busy = false; btn.disabled = false; btn.textContent = 'Add Pet';
+    }
   }
 
   function deletePet(petId) {
     const pet = petsCache.find(p => String(p.id) === String(petId));
-    showAlert({
-      title: 'Delete this passport?', msg: (pet ? pet.name + "'s" : 'This') + ' passport will be permanently removed.',
-      okLabel: 'Delete', cancelLabel: 'Cancel',
-      onOk: async () => {
-        const { error } = await db.from('pets').delete().eq('id', petId);
-        if (error) return showCustomAlert('Error', error.message); await loadPets();
-      }
+    showAlert({ title: 'Delete this passport?', msg: (pet ? (cleanText(pet.name, 24) || 'This pet') + "'s" : 'This') + ' passport will be permanently removed.', okLabel: 'Delete', cancelLabel: 'Cancel',
+      onOk: async () => { const { error } = await db.from('pets').delete().eq('id', petId); if (error) return showCustomAlert('Error', error.message); await loadPets(); }
     });
   }
 
-  // --- MAP HANDOFF ---
+  // =====================================================================
+  //  MAP HANDOFF
+  // =====================================================================
   async function handleIncomingSave() {
     const params = new URLSearchParams(window.location.search);
     const vetName = params.get('save_vet'), groomerName = params.get('save_groomer');
     if (!vetName && !groomerName) return;
-    window.history.replaceState({}, document.title, window.location.pathname);
-    if (!currentUser) return;
-    const type = vetName ? 'preferred_vet' : 'preferred_groomer';
-    const name = cleanText(vetName || groomerName, 80); if (!name) return;
+    window.history.replaceState({}, document.title, window.location.pathname); if (!currentUser) return;
+    const type = vetName ? 'preferred_vet' : 'preferred_groomer'; const name = cleanText(vetName || groomerName, 80); if (!name) return;
     const { data: pets } = await db.from('pets').select('id, name').eq('owner_id', currentUser.id);
     if (!pets || !pets.length) return showCustomAlert('No Pets Found', 'Please add a pet before saving locations.');
-    const save = async (pet) => { await db.from('pets').update({ [type]: name }).eq('id', pet.id); showCustomAlert('Saved! 🛂', `Added ${name} to ${pet.name}'s profile.`); await loadPets(); };
+    const save = async (pet) => { await db.from('pets').update({ [type]: name }).eq('id', pet.id); showCustomAlert('Saved! 🛂', `Added ${name} to ${cleanText(pet.name, 24) || 'your pet'}'s profile.`); await loadPets(); };
     if (pets.length === 1) return save(pets[0]);
     pickPet(pets, 'Which pet is this for?', save);
   }
 
-  // --- BOOT ---
+  // =====================================================================
+  //  BOOT
+  // =====================================================================
   checkUser();
 </script>
 </body>
