@@ -870,7 +870,15 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     text-decoration: none;
     box-sizing: border-box;
 }
-.btn-ping:hover { background: #D1FAE5; }
+872  }
+873  .btn-ping:hover { background: #D1FAE5; }
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
 </style>
 </head>
 <body>
@@ -1173,10 +1181,11 @@ function popupHTML(c, st) {
   // Build the Call button (Full width)
   let callBtnHTML = c.phone ? `<a class="call-btn-main" href="tel:${c.phone}">📞 Call ${c.phone}</a>` : '';
   actionLinks += callBtnHTML;
+
   // Build the "I'm Here" Ping button
   let pingBtnHTML = "";
   if (["Mall", "Cafe", "Park", "Training"].includes(c.category)) {
-      pingBtnHTML = `<button class="btn-ping" onclick="dropPing('${c.id}', '${c.name.replace(/'/g, "\\'")}')">🐾 I'm Here Now</button>`;
+      pingBtnHTML = `<button class="btn-ping" onclick="dropPing('${c.id}', '${c.name.replace(/'/g, "\\'")}')">🐾Click & Connect</button>`;
   }  
 
   // --- TRANSPORT BUTTONS (VETS ONLY) ---
@@ -1673,7 +1682,67 @@ async function dropPing(placeId, placeName) {
     }
 }
 
-</script>
+// --- FETCH AND SHOW ACTIVE PINGS ---
+async function loadActivePings() {
+    const { data: pings, error } = await supabaseClient
+        .from('active_pings')
+        .select('*')
+        .gt('expires_at', new Date().toISOString());
+
+    if (error) {
+        console.error("Error loading pings:", error);
+        return;
+    }
+
+    pings.forEach(ping => {
+        const place = DATA.clinics.find(c => String(c.id) === String(ping.place_id));
+        if (!place || !place.lat || !place.lng) return;
+
+        const pingIcon = L.divIcon({
+            className: 'custom-ping-icon',
+            html: `<div style="background:#10B981; width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px #10B981; animation: pulse 1.5s infinite;"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        const pingMarker = L.marker([place.lat, place.lng], { icon: pingIcon }).addTo(map);
+        
+        pingMarker.bindPopup(`
+            <div class="popup" style="text-align:center; padding:10px;">
+                <h3 style="font-size:14px; margin-bottom:4px; color:#10B981;">🐾 Active Buddy!</h3>
+                <p style="font-size:12px; margin-bottom:8px;">${esc(ping.pet_name)} is here!</p>
+                <button onclick="sendConnectRequest('${ping.user_id}', '${ping.id}')" style="background:#10B981; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">👋 Connect</button>
+            </div>
+        `);
+    });
+}
+
+// --- SEND A CONNECTION REQUEST ---
+async function sendConnectRequest(receiverId, pingId) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return alert("Please log into your Passport first.");
+
+    const { error } = await supabaseClient.from('connect_requests').insert({
+        sender_id: session.user.id,
+        receiver_id: receiverId,
+        ping_id: pingId
+    });
+
+    if (error) {
+        if (error.code === '23505') { 
+            alert("You have already sent a request to this buddy!");
+        } else {
+            alert("Error: " + error.message);
+        }
+    } else {
+        alert("Connection request sent! 🐾 They will see it in their Passport.");
+    }
+}
+
+// Run this as soon as the map loads!
+loadActivePings();
+
+
 </script>
 
 <div id="pricing-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
