@@ -949,16 +949,17 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
           <span style="color:#10B981;"><span style="font-size:10px;">●</span> Near: Current Location</span>
           <span onclick="initLocation()">Detect GPS</span>
       </div>
-<div style="display: flex; gap: 8px; margin-bottom: 16px;">
-    <button id="pricing-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; color: #1E293B; transition: 0.2s;">
+<div style="display: flex; gap: 8px; margin-bottom: 16px; width: 100%;">
+    <button id="pricing-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; color: #1E293B; transition: 0.2s; white-space: nowrap;">
         💲 Vet Pricing
     </button>
-    <a href="passport.html" target="_blank" id="split-passport-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #388E3C; color: white; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 13px; font-family: 'Inter', sans-serif;">
-        🛂 Sign Up / Login
+    <a href="passport.html" target="_blank" id="split-passport-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; background: #388E3C; color: white; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 13px; font-family: 'Inter', sans-serif; transition: 0.2s; white-space: nowrap;">
+        🛂 Sign Up / Log In
     </a>
+</div>
 
 <div class="section-label">PRIMARY SERVICE</div>
-<div class="service-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+<div class="service-grid" style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px; width: 100%;">
     <!-- 1. Veterinary -->
     <button class="service-card active cat-btn" data-cat="Vet" id="btn-Vet">
         <div class="service-icon">
@@ -1886,9 +1887,10 @@ async function updateAuthUI() {
         
         // Control Panel Button
         // Control Panel Button
-        btn.innerHTML = `🛂 My Passport (${coins} Budcoin)`;
+        btn.innerHTML = `🛂 My Passport (${coins} Buddycoin)`;
         btn.style.background = '#388E3C'; // Green base
         btn.style.color = '#FDE047'; // Gold words
+        btn.style.whiteSpace = 'nowrap';
         
         // Top Right Map Icon
         if (mapIcon) {

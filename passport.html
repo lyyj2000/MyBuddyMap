@@ -47,16 +47,16 @@
   .hidden { display: none !important; }
 
   /* ---------- TOKEN WALLET (GREEN & GOLD) ---------- */
-  .token-wallet { background: #388E3C; border-radius: 12px;
+  .Buddycoin-wallet { background: #388E3C; border-radius: 12px;
                   padding: 15px 20px; margin-bottom: 20px; color: #fff; position: relative; z-index: 10;
                   box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3); display: flex; justify-content: space-between; align-items: center; }
-  .token-wallet-left { flex: 1; }
-  .token-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #FDE047; margin-bottom: 2px; }
-  .token-balance { font-size: 28px; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 8px; color: #FDE047; }
-  .token-icon { font-size: 24px; }
-  .token-wallet-btn { background: #fff; color: #D97706; border: none; padding: 8px 12px; border-radius: 8px;
+  .Buddycoin-wallet-left { flex: 1; }
+  .Buddycoin-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #FDE047; margin-bottom: 2px; }
+  .Buddycoin-balance { font-size: 28px; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 8px; color: #FDE047; }
+  .Buddycoin-icon { font-size: 24px; }
+  .Buddycoin-wallet-btn { background: #fff; color: #D97706; border: none; padding: 8px 12px; border-radius: 8px;
                       font-size: 12px; font-weight: 900; font-family: 'Baloo 2', cursive; cursor: pointer; transition: 0.2s; }
-  .token-wallet-btn:hover { background: #FFFBEB; transform: scale(1.05); }
+  .Buddycoin-wallet-btn:hover { background: #FFFBEB; transform: scale(1.05); }
 
   .social-checkboxes { margin-bottom: 15px; text-align: left; z-index: 10; position: relative; }
   .social-checkbox { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #2C3E50; }
@@ -376,12 +376,12 @@
     <p class="subtitle" id="user-email" style="color: #388E3C; font-weight: 800; margin-bottom: 15px;"></p>
     
     <!-- TOKEN WALLET -->
-    <div class="token-wallet">
-      <div class="token-wallet-left">
-        <div class="token-label">MyBuddy Token Balance</div>
-        <div class="token-balance"><span class="token-icon">🪙</span> <span id="token-balance">0</span></div>
+    <div class="Buddycoin-wallet">
+      <div class="Buddycoin-wallet-left">
+        <div class="Buddycoin-label">MyBuddy Token Balance</div>
+        <div class="Buddycoin-balance"><span class="Buddycoin-icon">🪙</span> <span id="Buddycoin-balance">0</span></div>
       </div>
-      <button class="token-wallet-btn" onclick="showTokenInfo()">Earn / Redeem</button>
+      <button class="Buddycoin-wallet-btn" onclick="showTokenInfo()">Earn / Redeem</button>
     </div>
 
     <h3 style="margin-bottom:10px; color: #388E3C; font-weight: 800;">Registered Pets</h3>
@@ -721,14 +721,14 @@
     window.userProfile = profile || { login_streak: 0, referral_count: 0, referred_by: null, tokens: 0 };
     
     // Load Token Balance
-    document.getElementById('token-balance').textContent = num(window.userProfile.tokens, 0);
+    document.getElementById('Buddycoin-balance').textContent = num(window.userProfile.tokens, 0);
 
     // Set up LIVE Realtime Subscription for Tokens
     try {
       db.channel('public:profiles')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + currentUser.id }, payload => {
           if (payload.new.tokens !== undefined) {
-            document.getElementById('token-balance').textContent = payload.new.tokens;
+            document.getElementById('Buddycoin-balance').textContent = payload.new.tokens;
             window.userProfile.tokens = payload.new.tokens;
             checkUpgradeCriteria(); // Re-check if they hit the threshold live!
           }
@@ -747,7 +747,7 @@
     const tokens = num(p.tokens, 0);
     const referrals = num(p.referral_count, 0);
     
-    // Check if they meet EITHER the token threshold OR the 3-friend referral goal
+    // Check if they meet EITHER the Buddycoin threshold OR the 3-friend referral goal
     if (tokens >= TOKEN_THRESHOLD || referrals >= 3) {
       await unlockSilver(`Goal Reached! 🎉`);
     }
@@ -768,7 +768,7 @@
     if (!error && data && data.ok) {
       localStorage.removeItem('mybuddy_pending_ref');
       const { data: fresh } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
-      if (fresh) { window.userProfile = fresh; document.getElementById('token-balance').textContent = num(fresh.tokens, 0); }
+      if (fresh) { window.userProfile = fresh; document.getElementById('Buddycoin-balance').textContent = num(fresh.tokens, 0); }
     } else if (!error && data && !data.ok) { localStorage.removeItem('mybuddy_pending_ref'); }
   }
 
