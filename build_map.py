@@ -873,10 +873,32 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 872  }
 873  .btn-ping:hover { background: #D1FAE5; }
 
-@keyframes pulse {
+@keyframes pulse-ring {
     0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
     100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes anti-orbit {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
+}
+.dog-ping-container {
+    position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+}
+.dog-ping-pulse {
+    position: absolute; width: 100%; height: 100%; background: rgba(16, 185, 129, 0.15);
+    border-radius: 50%; border: 2px solid #10B981; animation: pulse-ring 2s infinite; box-sizing: border-box;
+}
+.dog-ping-orbit {
+    position: absolute; width: 100%; height: 100%; animation: orbit 3s linear infinite;
+}
+.dog-ping-emoji {
+    position: absolute; top: -6px; left: 50%; margin-left: -14px; font-size: 26px;
+    animation: anti-orbit 3s linear infinite; display: inline-block;
 }
 
 </style>
@@ -1649,13 +1671,6 @@ async function openReportModal(placeId, placeName) {
     }
 }
 
-    if (error) {
-        alert("Error submitting report: " + error.message);
-    } else {
-        alert("Thank you! Your report is pending admin approval. You'll earn 5 tokens once approved!");
-    }
-}
-// <--- PASTE THE NEW dropPing FUNCTION RIGHT HERE ON LINE 1643
 
 async function dropPing(placeId, placeName) {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1700,9 +1715,17 @@ async function loadActivePings() {
 
         const pingIcon = L.divIcon({
             className: 'custom-ping-icon',
-            html: `<div style="background:#10B981; width:20px; height:20px; border-radius:50%; border:3px solid white; box-shadow:0 0 10px #10B981; animation: pulse 1.5s infinite;"></div>`,
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            html: `
+                <div class="dog-ping-container">
+                    <div class="dog-ping-pulse"></div>
+                    <div class="dog-ping-orbit">
+                        <span class="dog-ping-emoji">🐕</span>
+                    </div>
+                </div>
+            `,
+            iconSize: [44, 44],
+            iconAnchor: [22, 22],
+            popupAnchor: [0, -22]
         });
 
         const pingMarker = L.marker([place.lat, place.lng], { icon: pingIcon }).addTo(map);

@@ -1068,13 +1068,6 @@ async function openReportModal(placeId, placeName) {
     }
 }
 
-    if (error) {
-        alert("Error submitting report: " + error.message);
-    } else {
-        alert("Thank you! Your report is pending admin approval. You'll earn 5 tokens once approved!");
-    }
-}
-// <--- PASTE THE NEW dropPing FUNCTION RIGHT HERE ON LINE 1643
 
 async function dropPing(placeId, placeName) {
     const { data: { session } } = await supabaseClient.auth.getSession();
