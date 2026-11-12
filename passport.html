@@ -515,7 +515,7 @@
   window.showTokenInfo = function() {
     showCustomAlert(
       "🪙 MyBuddy Buddycoins",
-      `Engage with the MyBuddy Map to earn Buddycoins:\n\n🤝 Refer a friend (+50)\n🐾 Host a park outing (+20)\n🚨 Help find a lost pet (+100)\n🏥 Review a clinic/cafe/groomer (+10)\n\nRedeem Buddycoins for:\n🎁 Pet treats & toys\n⭐️ Premium features\n🎟️ Event discounts\n\nReach ${TOKEN_THRESHOLD} Buddycoins or invite 3 friends to upgrade your pet to Silver for FREE!`,
+      `Engage with the MyBuddy Map to earn Buddycoins:\n\n🤝 Refer a friend (+30)\n🐾 Host a park outing (+20)\n🚨 Help find a lost pet (+100)\n🏥 Review a clinic/cafe/groomer (+10)\n📅 Book an appointment via MyBuddy (+10)\n\nRedeem Buddycoins for:\n🎁 Pet treats & toys\n⭐️ Premium features\n🎟️ Event discounts\n\nReach ${TOKEN_THRESHOLD} Buddycoins or invite 3 friends to upgrade your pet to Silver for FREE!`,
       "Let's Go!"
     );
   };
@@ -933,7 +933,15 @@
           
           <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#334155; margin-bottom:4px;"><span>👥 Invite 3 Friends</span> <span>${referrals} of 3</span></div>
           <div style="width:100%; background:#E2E8F0; border-radius:99px; height:8px; margin-bottom:12px;"><div style="width:${(referrals / 3) * 100}%; background:#3B82F6; height:8px; border-radius:99px;"></div></div>
-          
+
+          <!-- PASTE THIS HERE -->
+          <div style="text-align:center; margin: 10px 0; font-size: 11px; color: #64748B; font-weight: 700;">
+              — OR —
+          </div>
+          <button onclick="buyPass('pet_secretary', 50)" style="width:100%; padding:8px; background:#F59E0B; color:#fff; border:none; border-radius:6px; font-weight:800; font-family:'Baloo 2', cursive; cursor:pointer; margin-bottom:8px;">
+              ⚡ Unlock for 30 Days (50 🪙)
+          </button>
+
           <div style="display:flex; gap:6px; margin-top:10px;">
             <a href="index.html" style="flex:1; text-align:center; background:#388E3C; color:#fff; text-decoration:none; padding:8px; border-radius:6px; font-weight:800; font-size:12px; box-sizing:border-box;">🗺️ Go to Map</a>
             <button onclick="copyReferralLink()" style="flex:1; padding:8px; background:#3B82F6; color:#fff; border:none; border-radius:6px; font-weight:800; font-family:'Baloo 2', cursive; cursor:pointer; font-size:12px;">🎁 Invite Friends</button>
@@ -1217,6 +1225,69 @@
     if (pets.length === 1) return save(pets[0]);
     pickPet(pets, 'Which pet is this for?', save);
   }
+
+      if (pets.length === 1) return save(pets[0]);
+    pickPet(pets, 'Which pet is this for?', save);
+}
+
+// =====================================================================
+//  PREMIUM FEATURE ACCESS SYSTEM
+// =====================================================================
+async function hasAccess(featureName) {
+    if (!currentUser) return false;
+    
+    // 1. Essential features are always free
+    const freeFeatures = ['lost_and_found', 'base_passport'];
+    if (freeFeatures.includes(featureName)) return true;
+
+    // 2. Check lifetime tier first (Gold gets everything, Silver gets Secretary)
+    const userTier = window.userProfile ? window.userProfile.tier : 'Red';
+    if (userTier === 'Gold') return true;
+    if (userTier === 'Silver' && featureName === 'pet_secretary') return true;
+
+    // 3. Check for an active temporary pass
+    const { data: passes } = await db.from('feature_passes')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('feature_name', featureName)
+        .gt('expires_at', new Date().toISOString()); // Must not be expired
+
+    if (passes && passes.length > 0) return true;
+
+    return false;
+}
+
+// =============================================
+//  BUY TEMPORARY PASS
+// =============================================
+async function buyPass(featureName, cost) {
+    if (!currentUser) return;
+    
+    if (!confirm(`Unlock this feature for 30 days for ${cost} Buddycoins?`)) return;
+
+    const { data, error } = await db.rpc('buy_feature_pass', { 
+        p_feature_name: featureName, 
+        p_cost: cost 
+    });
+
+    if (error) {
+        return showCustomAlert("Error", error.message);
+    }
+
+    if (data.success) {
+        showCustomAlert("Success! 🎉", "Your 30-day pass is now active!");
+        // Refresh their profile to show the new balance
+        const { data: fresh } = await db.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+        if (fresh) {
+            window.userProfile = fresh;
+            document.getElementById('token-balance').textContent = fresh.tokens;
+        }
+        await loadPets(); // Re-render the passports
+    } else {
+        showCustomAlert("Not enough Buddycoins", data.message);
+    }
+}
+
 
   // =====================================================================
   //  BOOT
