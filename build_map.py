@@ -1744,7 +1744,6 @@ function createClickConnectIcon(count) {
 
 async function loadActivePings() {
     try {
-        // Get the current logged-in user to check if it's THEIR ping
         const { data: { session } } = await supabaseClient.auth.getSession();
         const currentUserId = session?.user?.id;
 
@@ -1755,21 +1754,19 @@ async function loadActivePings() {
 
         if (error) throw error;
 
-       // Fetch profiles to get their membership tiers
-const userIds = [...new Set(pings.map(p => p.user_id))];
-let userTiers = {};
-if (userIds.length > 0) {
-    const { data: profiles } = await supabaseClient.from('profiles').select('id, tier').in('id', userIds);
-    if (profiles) profiles.forEach(p => userTiers[p.id] = p.tier);
-}
+        const userIds = [...new Set(pings.map(p => p.user_id))];
+        let userTiers = {};
+        if (userIds.length > 0) {
+            const { data: profiles } = await supabaseClient.from('profiles').select('id, tier').in('id', userIds);
+            if (profiles) profiles.forEach(p => userTiers[p.id] = p.tier);
+        }
 
-const pingsByPlace = {};
-pings.forEach(ping => {
-    if (!pingsByPlace[ping.place_id]) pingsByPlace[ping.place_id] = [];
-    // Attach the tier to the ping object
-    ping.user_tier = userTiers[ping.user_id] || 'Red';
-    pingsByPlace[ping.place_id].push(ping);
-});
+        const pingsByPlace = {};
+        pings.forEach(ping => {
+            if (!pingsByPlace[ping.place_id]) pingsByPlace[ping.place_id] = [];
+            ping.user_tier = userTiers[ping.user_id] || 'Red';
+            pingsByPlace[ping.place_id].push(ping);
+        });
 
         const updatedParkIds = new Set();
 
@@ -1782,38 +1779,34 @@ pings.forEach(ping => {
             updatedParkIds.add(String(placeId));
             const count = placePings.length;
 
-            let popupContent = `<div class="popup" style="text-align:center; padding:10px;">
-                <h3 style="font-size:14px; margin-bottom:8px; color:#3B82F6;">🐾 Active Buddies!</h3>`;
+            let popupContent = '<div class="popup" style="text-align:center; padding:10px;">';
+            popupContent += '<h3 style="font-size:14px; margin-bottom:8px; color:#3B82F6;">🐾 Active Buddies!</h3>';
                 
             placePings.forEach(ping => {
-                // Format the date and time
                 const dateObj = new Date(ping.created_at);
                 const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
                                    dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                // Build the Tier Badge
                 let tierBadge = '';
                 if (ping.user_tier === 'Gold') tierBadge = '<span title="Gold Member" style="margin-left:4px;">🥇</span>';
                 else if (ping.user_tier === 'Silver') tierBadge = '<span title="Silver Member" style="margin-left:4px;">🥈</span>';
 
                 const isMyPing = currentUserId === ping.user_id;
 
-                popupContent += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">
-                        <div style="text-align:left;">
-                            <div style="font-size:12px; font-weight:bold; color:#334155;">${esc(ping.pet_name)} ${tierBadge}</div>
-                            <div style="font-size:10px; color:#64748B;">Since ${timeString}</div>
-                        </div>
-                        ${isMyPing 
-                            ? `<button onclick="cancelPing('${ping.id}')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>`
-                            : `<button onclick="sendConnectRequest('${ping.user_id}', '${ping.id}')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>`
-                        }
-                    </div>
-                `;
+                popupContent += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">';
+                popupContent += '<div style="text-align:left;">';
+                popupContent += '<div style="font-size:12px; font-weight:bold; color:#334155;">' + esc(ping.pet_name) + ' ' + tierBadge + '</div>';
+                popupContent += '<div style="font-size:10px; color:#64748B;">Since ' + timeString + '</div>';
+                popupContent += '</div>';
+                
+                if (isMyPing) {
+                    popupContent += '<button onclick="cancelPing(\'' + ping.id + '\')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>';
+                } else {
+                    popupContent += '<button onclick="sendConnectRequest(\'' + ping.user_id + '\', \'' + ping.id + '\')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>';
+                }
+                popupContent += '</div>';
             });
-                `;
-            });
-            popupContent += `</div>`;
+            popupContent += '</div>';
 
             let marker = parkMarkerRegistry.get(placeId);
 
