@@ -873,32 +873,46 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 872  }
 873  .btn-ping:hover { background: #D1FAE5; }
 
-@keyframes pulse-ring {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+/* CLICK & CONNECT MARKER */
+.mybuddy-click-connect-icon {
+    background: transparent;
+    border: none;
 }
-@keyframes orbit {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.cc-marker {
+    position: relative;
+    width: 40px;  
+    height: 50px; 
+    animation: scale-paw 1.5s ease-in-out infinite; /* THIS MAKES IT BLINK */
+    transform-origin: bottom center;
 }
-@keyframes anti-orbit {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(-360deg); }
+.cc-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    left: 0;
+    top: 0;
+    filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));
 }
-.dog-ping-container {
-    position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+.cc-count {
+    position: absolute;
+    left: 78.5%;
+    top: 17.5%;
+    transform: translate(-50%, -50%);
+    width: 16px;  
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    font-size: 11px; /* Made it slightly bigger so red is readable */
+    font-weight: 800;
+    color: #EF4444; /* RED COLOR */
+    pointer-events: none;
 }
-.dog-ping-pulse {
-    position: absolute; width: 100%; height: 100%; background: rgba(16, 185, 129, 0.15);
-    border-radius: 50%; border: 2px solid #10B981; animation: pulse-ring 2s infinite; box-sizing: border-box;
-}
-.dog-ping-orbit {
-    position: absolute; width: 100%; height: 100%; animation: orbit 3s linear infinite;
-}
-.dog-ping-emoji {
-    position: absolute; top: -6px; left: 50%; margin-left: -14px; font-size: 26px;
-    animation: anti-orbit 3s linear infinite; display: inline-block;
+@keyframes scale-paw {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); } /* Blinks up and down */
 }
 
 </style>
@@ -1698,47 +1712,114 @@ async function dropPing(placeId, placeName) {
 }
 
 // --- FETCH AND SHOW ACTIVE PINGS ---
-async function loadActivePings() {
-    const { data: pings, error } = await supabaseClient
-        .from('active_pings')
-        .select('*')
-        .gt('expires_at', new Date().toISOString());
+// Keep track of existing park markers
+const parkMarkerRegistry = new Map();
 
-    if (error) {
-        console.error("Error loading pings:", error);
-        return;
-    }
-
-    pings.forEach(ping => {
-        const place = DATA.clinics.find(c => String(c.id) === String(ping.place_id));
-        if (!place || !place.lat || !place.lng) return;
-
-        const pingIcon = L.divIcon({
-            className: 'custom-ping-icon',
-            html: `
-                <div class="dog-ping-container">
-                    <div class="dog-ping-pulse"></div>
-                    <div class="dog-ping-orbit">
-                        <span class="dog-ping-emoji">🐕</span>
-                    </div>
-                </div>
-            `,
-            iconSize: [44, 44],
-            iconAnchor: [22, 22],
-            popupAnchor: [0, -22]
-        });
-
-        const pingMarker = L.marker([place.lat, place.lng], { icon: pingIcon }).addTo(map);
-        
-        pingMarker.bindPopup(`
-            <div class="popup" style="text-align:center; padding:10px;">
-                <h3 style="font-size:14px; margin-bottom:4px; color:#10B981;">🐾 Active Buddy!</h3>
-                <p style="font-size:12px; margin-bottom:8px;">${esc(ping.pet_name)} is here!</p>
-                <button onclick="sendConnectRequest('${ping.user_id}', '${ping.id}')" style="background:#10B981; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">👋 Connect</button>
+// Create the custom marker icon
+function createClickConnectIcon(count) {
+    const displayCount = count > 99 ? "99+" : count > 0 ? String(count) : "";
+    return L.divIcon({
+        className: 'mybuddy-click-connect-icon',
+        html: `
+            <div class="cc-marker">
+                <img src="mybuddy_click_connect_transparent.png" class="cc-logo">
+                <span class="cc-count">${displayCount}</span>
             </div>
-        `);
+        `,
+        iconSize: [40, 50],   // <-- Scaled to match your other pins
+        iconAnchor: [20, 48]  // <-- Points bottom tip to exact location
     });
 }
+
+async function loadActivePings() {
+    try {
+        // Get the current logged-in user to check if it's THEIR ping
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const currentUserId = session?.user?.id;
+
+        const { data: pings, error } = await supabaseClient
+            .from('active_pings')
+            .select('*')
+            .gt('expires_at', new Date().toISOString());
+
+        if (error) throw error;
+
+        const pingsByPlace = {};
+        pings.forEach(ping => {
+            if (!pingsByPlace[ping.place_id]) pingsByPlace[ping.place_id] = [];
+            pingsByPlace[ping.place_id].push(ping);
+        });
+
+        const updatedParkIds = new Set();
+
+        for (const placeId in pingsByPlace) {
+            const placePings = pingsByPlace[placeId];
+            const place = DATA.clinics.find(c => String(c.id) === String(placeId));
+            
+            if (!place || !place.lat || !place.lng) continue;
+
+            updatedParkIds.add(String(placeId));
+            const count = placePings.length;
+
+            let popupContent = `<div class="popup" style="text-align:center; padding:10px;">
+                <h3 style="font-size:14px; margin-bottom:8px; color:#3B82F6;">🐾 Active Buddies!</h3>`;
+                
+            placePings.forEach(ping => {
+                // Format the date and time (e.g., "12 Nov, 10:30 AM")
+                const dateObj = new Date(ping.created_at);
+                const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
+                                   dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const isMyPing = currentUserId === ping.user_id;
+
+                popupContent += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">
+                        <div style="text-align:left;">
+                            <div style="font-size:12px; font-weight:bold; color:#334155;">${esc(ping.pet_name)}</div>
+                            <div style="font-size:10px; color:#64748B;">Since ${timeString}</div>
+                        </div>
+                        ${isMyPing 
+                            ? `<button onclick="cancelPing('${ping.id}')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>`
+                            : `<button onclick="sendConnectRequest('${ping.user_id}', '${ping.id}')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>`
+                        }
+                    </div>
+                `;
+            });
+            popupContent += `</div>`;
+
+            let marker = parkMarkerRegistry.get(placeId);
+
+            if (!marker) {
+                marker = L.marker([place.lat, place.lng], {
+                    icon: createClickConnectIcon(count),
+                    zIndexOffset: 1000
+                }).addTo(map);
+                marker.bindPopup(popupContent);
+                parkMarkerRegistry.set(placeId, marker);
+            } else {
+                marker.setLatLng([place.lat, place.lng]);
+                marker.setIcon(createClickConnectIcon(count));
+                marker.setPopupContent(popupContent);
+            }
+        }
+
+        for (const [placeId, marker] of parkMarkerRegistry) {
+            if (!updatedParkIds.has(placeId)) {
+                map.removeLayer(marker);
+                parkMarkerRegistry.delete(placeId);
+            }
+        }
+
+    } catch (error) {
+        console.error("MyBuddy Click & Connect Error:", error);
+    }
+}
+
+// Initial loading
+loadActivePings();
+
+// Auto-refresh every 30 seconds to catch new check-ins or expired ones
+setInterval(loadActivePings, 30000);
 
 // --- SEND A CONNECTION REQUEST ---
 async function sendConnectRequest(receiverId, pingId) {
@@ -1759,6 +1840,19 @@ async function sendConnectRequest(receiverId, pingId) {
         }
     } else {
         alert("Connection request sent! 🐾 They will see it in their Passport.");
+    }
+}
+
+async function cancelPing(pingId) {
+    if (!confirm("Are you sure you want to cancel your check-in? This will remove you from the map.")) return;
+
+    const { error } = await supabaseClient.from('active_pings').delete().eq('id', pingId);
+
+    if (error) {
+        alert("Error cancelling check-in: " + error.message);
+    } else {
+        alert("Check-in cancelled! You have been removed from the map.");
+        loadActivePings(); // Instantly refresh the map to remove the pin
     }
 }
 
