@@ -422,16 +422,8 @@
       <label style="font-size:12px; font-weight:800; color:#555;">Microchip Number (Optional)</label>
       <input type="text" id="pet-microchip" placeholder="15-digit ISO Microchip" maxlength="15">
 
-      <div style="display:flex; gap:10px;">
-        <div style="flex:1;">
-            <label style="font-size:12px; font-weight:800; color:#555;">Owner Phone</label>
-            <input type="tel" id="pet-owner-phone" placeholder="+65 9123 4567" maxlength="20">
-        </div>
-        <div style="flex:1;">
-            <label style="font-size:12px; font-weight:800; color:#555;">Blood Type</label>
-            <input type="text" id="pet-blood" placeholder="e.g. DEA 1.1+" maxlength="15">
-        </div>
-      </div>
+      <label style="font-size:12px; font-weight:800; color:#555;">Owner Phone</label>
+      <input type="tel" id="pet-owner-phone" placeholder="+65 9123 4567" maxlength="20">
       <div style="display:flex; gap:10px;">
         <div style="flex:1;">
             <label style="font-size:12px; font-weight:800; color:#555;">Allergies</label>
@@ -1187,7 +1179,7 @@
 
       const { error } = await db.from('pets').insert([{
         owner_id: currentUser.id, name, species, sex, birthday: birthday || null, weight, microchip: microchip || null,
-        owner_phone: ownerPhone || null, blood_type: bloodType || null, allergies: allergies || null, markings: markings || null,
+        owner_phone: ownerPhone || null, allergies: allergies || null, markings: markings || null,
         photo_url: photoBase64, serial_number: serialNumber, tier: 'Standard', travel_checklist: {}
       }]);
 

@@ -1755,11 +1755,21 @@ async function loadActivePings() {
 
         if (error) throw error;
 
-        const pingsByPlace = {};
-        pings.forEach(ping => {
-            if (!pingsByPlace[ping.place_id]) pingsByPlace[ping.place_id] = [];
-            pingsByPlace[ping.place_id].push(ping);
-        });
+       // Fetch profiles to get their membership tiers
+const userIds = [...new Set(pings.map(p => p.user_id))];
+let userTiers = {};
+if (userIds.length > 0) {
+    const { data: profiles } = await supabaseClient.from('profiles').select('id, tier').in('id', userIds);
+    if (profiles) profiles.forEach(p => userTiers[p.id] = p.tier);
+}
+
+const pingsByPlace = {};
+pings.forEach(ping => {
+    if (!pingsByPlace[ping.place_id]) pingsByPlace[ping.place_id] = [];
+    // Attach the tier to the ping object
+    ping.user_tier = userTiers[ping.user_id] || 'Red';
+    pingsByPlace[ping.place_id].push(ping);
+});
 
         const updatedParkIds = new Set();
 
@@ -1776,17 +1786,22 @@ async function loadActivePings() {
                 <h3 style="font-size:14px; margin-bottom:8px; color:#3B82F6;">🐾 Active Buddies!</h3>`;
                 
             placePings.forEach(ping => {
-                // Format the date and time (e.g., "12 Nov, 10:30 AM")
+                // Format the date and time
                 const dateObj = new Date(ping.created_at);
                 const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
                                    dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // Build the Tier Badge
+                let tierBadge = '';
+                if (ping.user_tier === 'Gold') tierBadge = '<span title="Gold Member" style="margin-left:4px;">🥇</span>';
+                else if (ping.user_tier === 'Silver') tierBadge = '<span title="Silver Member" style="margin-left:4px;">🥈</span>';
 
                 const isMyPing = currentUserId === ping.user_id;
 
                 popupContent += `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">
                         <div style="text-align:left;">
-                            <div style="font-size:12px; font-weight:bold; color:#334155;">${esc(ping.pet_name)}</div>
+                            <div style="font-size:12px; font-weight:bold; color:#334155;">${esc(ping.pet_name)} ${tierBadge}</div>
                             <div style="font-size:10px; color:#64748B;">Since ${timeString}</div>
                         </div>
                         ${isMyPing 
@@ -1794,6 +1809,8 @@ async function loadActivePings() {
                             : `<button onclick="sendConnectRequest('${ping.user_id}', '${ping.id}')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>`
                         }
                     </div>
+                `;
+            });
                 `;
             });
             popupContent += `</div>`;
