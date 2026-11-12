@@ -270,6 +270,26 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 /* THE GREY FILTER FOR ONEMAP */
 .leaflet-tile-pane { filter: grayscale(0.7) contrast(0.9) brightness(1.05); }
 .leaflet-marker-pane { filter: none !important; }
+.btn-ping {
+    width: 100%;
+    padding: 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid #10B981;
+    background: #ECFDF5;
+    color: #047857 !important;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+    transition: 0.2s;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+.btn-ping:hover { background: #D1FAE5; }
 </style>
 </head>
 <body>
@@ -572,6 +592,11 @@ function popupHTML(c, st) {
   // Build the Call button (Full width)
   let callBtnHTML = c.phone ? `<a class="call-btn-main" href="tel:${c.phone}">📞 Call ${c.phone}</a>` : '';
   actionLinks += callBtnHTML;
+  // Build the "I'm Here" Ping button
+  let pingBtnHTML = "";
+  if (["Mall", "Cafe", "Park", "Training"].includes(c.category)) {
+      pingBtnHTML = `<button class="btn-ping" onclick="dropPing('${c.id}', '${c.name.replace(/'/g, "\\'")}')">🐾 I'm Here Now</button>`;
+  }  
 
   // --- TRANSPORT BUTTONS (VETS ONLY) ---
   let transportHtml = "";
@@ -611,6 +636,7 @@ function popupHTML(c, st) {
     <div class="popup-actions">
       ${actionLinks}
     </div>
+    ${pingBtnHTML}
     ${transportHtml}
   </div>`;
 }
@@ -1033,6 +1059,40 @@ async function openReportModal(placeId, placeName) {
     }
 }
 
+    if (error) {
+        alert("Error submitting report: " + error.message);
+    } else {
+        alert("Thank you! Your report is pending admin approval. You'll earn 5 tokens once approved!");
+    }
+}
+// <--- PASTE THE NEW dropPing FUNCTION RIGHT HERE ON LINE 1643
+
+async function dropPing(placeId, placeName) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        alert("Please log into your MyBuddy Pet Passport first to check in!");
+        window.open("passport.html", "_blank");
+        return;
+    }
+
+    const petName = prompt("Who is joining you? (e.g. Max the Corgi)", "My Pet");
+    if (!petName) return;
+
+    const { error } = await supabaseClient.from('active_pings').insert({
+        user_id: session.user.id,
+        place_id: placeId,
+        place_name: placeName,
+        pet_name: petName
+    });
+
+    if (error) {
+        alert("Error dropping pin: " + error.message);
+    } else {
+        alert("You're on the map! Other owners at " + placeName + " can now see you for the next 2 hours. 🐾");
+    }
+}
+
+</script>
 </script>
 
 <div id="pricing-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
