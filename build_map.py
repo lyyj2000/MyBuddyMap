@@ -1223,10 +1223,20 @@ function popupHTML(c, st) {
   let hasWebsite = c.booking && !isWhatsApp(c.booking);
 
   // --- NEW BUTTON LOGIC ---
+const isBookingCategory = ["Vet", "Groomer", "Training", "Dine", "Cafe", "Asian", "Western"].includes(c.category);
+
   let btnDirections = `<a class="popup-btn" href="${dirUrl}" target="_blank">🚗 Directions</a>`;
   let btnUpdate = `<button class="popup-btn" onclick="openReportModal('${c.id}', '${c.name.replace(/'/g, "\\'")}')">📝 Update Info</button>`;
   
-  let btnWhatsApp = waLink ? `<a class="popup-btn" href="${waLink}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '';
+  let btnWhatsApp = '';
+  if (waLink) {
+      if (isBookingCategory) {
+          btnWhatsApp = `<button class="popup-btn" onclick="handleBooking('${c.id}', '${c.name.replace(/'/g, "\\'")}', 'whatsapp', '${waLink}')">📅 Book via WhatsApp</button>`;
+      } else {
+          btnWhatsApp = `<a class="popup-btn" href="${waLink}" target="_blank" rel="noopener">💬 WhatsApp</a>`;
+      }
+  }
+
   let btnDetails = hasWebsite ? `<a class="popup-btn" href="${getRootUrl(c.booking)}" target="_blank" rel="noopener">🌐 Details</a>` : `<a class="popup-btn" href="${gUrl}" target="_blank">🔍 Search</a>`;
 
   // Put the 4 buttons in a 2x2 grid
@@ -1240,7 +1250,14 @@ function popupHTML(c, st) {
   `;
   
   // Build the Call button (Full width)
-  let callBtnHTML = c.phone ? `<a class="call-btn-main" href="tel:${c.phone}">📞 Call ${c.phone}</a>` : '';
+  let callBtnHTML = '';
+  if (c.phone) {
+      if (isBookingCategory) {
+          callBtnHTML = `<button class="call-btn-main" onclick="handleBooking('${c.id}', '${c.name.replace(/'/g, "\\'")}', 'call', '${c.phone}')">📅 Book via Call ${c.phone}</button>`;
+      } else {
+          callBtnHTML = `<a class="call-btn-main" href="tel:${c.phone}">📞 Call ${c.phone}</a>`;
+      }
+  }
   actionLinks += callBtnHTML;
 
   // Build the "I'm Here" Ping button
@@ -1732,6 +1749,7 @@ async function submitReport() {
         });
     }
 
+    // Save to database
     const { error } = await supabaseClient.from('map_reports').insert({
         user_id: session.user.id,
         place_id: currentReportPlace.id,
@@ -1749,6 +1767,46 @@ async function submitReport() {
     } else {
         closeReportModal();
         alert("Thank you! Your report is pending admin approval. You will earn 5 Buddycoins once approved!");
+    }
+}
+
+async function handleBooking(placeId, placeName, actionType, contactInfo) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) {
+        document.getElementById('login-prompt-modal').style.display = 'flex';
+        return;
+    }
+
+    const refCode = "MB-" + Math.floor(1000 + Math.random() * 9000);
+    
+    const { error: dbError } = await supabaseClient.from('appointments').insert({
+        user_id: session.user.id,
+        place_id: placeId,
+        place_name: placeName,
+        reference_code: refCode,
+        status: 'pending'
+    });
+
+    if (dbError) {
+        alert("Error saving booking: " + dbError.message);
+        return;
+    }
+
+    if (actionType === 'whatsapp') {
+        const message = `Hi, I'd like to make a booking. My MyBuddy Ref: ${refCode}`;
+        
+        // Copy to clipboard just in case
+        navigator.clipboard.writeText(refCode);
+        
+        // 1. Show Alert FIRST so they definitely see the code
+        alert(`Booking code ${refCode} copied to your clipboard!\n\nSubmit proof in your Passport after your visit to claim 10 Buddycoins. 🪙`);
+        
+        // 2. Then open WhatsApp
+        window.open(`${contactInfo}?text=${encodeURIComponent(message)}`, '_blank');
+    } else if (actionType === 'call') {
+        navigator.clipboard.writeText(refCode);
+        alert(`Booking code ${refCode} copied to your clipboard!\n\nCall the clinic now. Submit proof in your Passport after your visit to claim 10 Buddycoins. 🪙`);
+        window.location.href = `tel:${contactInfo}`;
     }
 }
 
