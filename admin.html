@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   body { font-family: 'Inter', sans-serif; background: #F8FAFC; color: #1E293B; margin: 0; padding: 20px; }
-  .container { max-width: 800px; margin: 0 auto; }
+  .container { max-width: 850px; margin: 0 auto; }
   .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 15px; margin-bottom: 20px; }
   h1 { margin: 0; font-size: 24px; color: #388E3C; font-weight: 800; }
   .report-card { background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
@@ -16,8 +16,8 @@
   .badge { background: #FEF3C7; color: #D97706; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; height: fit-content; }
   .evidence-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; border: 1px solid #E2E8F0; object-fit: contain; }
   .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-  .btn-approve { background: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1; }
-  .btn-reject { background: #EF4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1; }
+  .btn-approve { background: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1; transition: 0.2s; }
+  .btn-reject { background: #EF4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1; transition: 0.2s; }
   .btn-approve:hover { background: #059669; }
   .btn-reject:hover { background: #DC2626; }
   .hidden { display: none !important; }
@@ -28,7 +28,10 @@
 <div class="container">
     <div class="header">
         <h1>🛡️ MyBuddy Admin Dashboard</h1>
-        <button onclick="supabaseClient.auth.signOut().then(()=>location.reload())" style="background:none; border:none; color:#EF4444; font-weight:700; cursor:pointer;">Log Out</button>
+        <div style="display:flex; gap:10px;">
+            <button id="history-btn" onclick="toggleHistory()" style="background:#3B82F6; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; transition: 0.2s;">📜 View History</button>
+            <button onclick="supabaseClient.auth.signOut().then(()=>location.reload())" style="background:none; border:none; color:#EF4444; font-weight:700; cursor:pointer;">Log Out</button>
+        </div>
     </div>
 
     <div id="auth-warning" class="hidden" style="text-align:center; margin-top:50px;">
@@ -37,8 +40,20 @@
         <a href="passport.html" style="background:#388E3C; color:white; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:800;">Go to Passport to Log In</a>
     </div>
 
-    <div id="reports-container">
-        <p style="text-align:center; color:#64748B;">Loading pending reports...</p>
+    <div id="dashboard-content">
+        <div id="reports-section">
+            <h2 style="font-size: 18px; color: #1E293B; margin-bottom: 15px;" id="reports-title">Pending Map Reports</h2>
+            <div id="reports-container">
+                <p style="text-align:center; color:#64748B;">Loading reports...</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; border-top: 2px solid #E2E8F0; padding-top: 20px;">
+            <h2 style="font-size: 18px; color: #1E293B; margin-bottom: 15px;" id="bookings-title">Pending Vendor Bookings</h2>
+            <div id="bookings-container" style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px;">
+                <p style="color:#64748B;">Loading bookings...</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -49,27 +64,54 @@
     
     const ADMIN_EMAIL = "lyyj2000@yahoo.com";
     let currentUser = null;
+    let showHistory = false;
 
     async function init() {
         const { data: { session } } = await supabaseClient.auth.getSession();
         
         if (!session || session.user.email !== ADMIN_EMAIL) {
-            document.getElementById('reports-container').classList.add('hidden');
+            document.getElementById('dashboard-content').classList.add('hidden');
             document.getElementById('auth-warning').classList.remove('hidden');
             return;
         }
 
         currentUser = session.user;
         loadReports();
+        loadBookings();
+    }
+
+    function toggleHistory() {
+        showHistory = !showHistory;
+        const btn = document.getElementById('history-btn');
+        const repTitle = document.getElementById('reports-title');
+        const bookTitle = document.getElementById('bookings-title');
+        
+        if (showHistory) {
+            btn.textContent = "⏳ View Pending";
+            btn.style.background = "#F59E0B";
+            repTitle.textContent = "Map Report History";
+            bookTitle.textContent = "Vendor Booking History";
+        } else {
+            btn.textContent = "📜 View History";
+            btn.style.background = "#3B82F6";
+            repTitle.textContent = "Pending Map Reports";
+            bookTitle.textContent = "Pending Vendor Bookings";
+        }
+        
+        loadReports();
+        loadBookings();
     }
 
     async function loadReports() {
-        const { data: reports, error } = await supabaseClient
-            .from('map_reports')
-            .select('*')
-            .eq('status', 'pending')
-            .order('created_at', { ascending: true });
+        let query = supabaseClient.from('map_reports').select('*').order('created_at', { ascending: false });
+        
+        if (!showHistory) {
+            query = query.eq('status', 'pending');
+        } else {
+            query = query.neq('status', 'pending');
+        }
 
+        const { data: reports, error } = await query;
         const container = document.getElementById('reports-container');
         
         if (error) {
@@ -78,13 +120,12 @@
         }
 
         if (reports.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:40px; background:white; border-radius:12px; border:1px solid #E2E8F0;"><h3>🎉 All caught up!</h3><p style="color:#64748B;">No pending reports at the moment.</p></div>';
+            container.innerHTML = '<div style="text-align:center; padding:30px; background:white; border-radius:12px; border:1px solid #E2E8F0;"><p style="color:#64748B;">No reports found.</p></div>';
             return;
         }
 
         let html = '';
-        for (let i = 0; i < reports.length; i++) {
-            let r = reports[i];
+        reports.forEach(r => {
             let evidenceHTML = r.evidence_url ? '<p style="font-size:12px; font-weight:700; margin-top:15px; margin-bottom:5px;">Evidence:</p><img src="' + r.evidence_url + '" class="evidence-img">' : '';
             
             html += '<div class="report-card">';
@@ -97,12 +138,63 @@
             html += '</div>';
             html += '<p style="background:#F8FAFC; padding:10px; border-radius:8px; font-size:14px; margin:10px 0;">' + r.report_content + '</p>';
             html += evidenceHTML;
+            
             html += '<div class="btn-group">';
-            html += '<button class="btn-approve" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'approved\')">✅ Approve & Award 5 🪙</button>';
-            html += '<button class="btn-reject" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'rejected\')">❌ Reject</button>';
+            if (!showHistory) {
+                html += '<button class="btn-approve" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'approved\')">✅ Approve & Award 5 🪙</button>';
+                html += '<button class="btn-reject" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'rejected\')">❌ Reject</button>';
+            } else {
+                let color = r.status === 'approved' ? '#10B981' : '#EF4444';
+                html += '<p style="font-size:13px; color:' + color + '; font-weight:800; text-transform:uppercase;">Status: ' + r.status + '</p>';
+            }
             html += '</div>';
             html += '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    async function loadBookings() {
+        let query = supabaseClient.from('appointments').select('*').order('created_at', { ascending: false });
+
+        if (!showHistory) {
+            query = query.eq('status', 'pending');
+        } else {
+            query = query.neq('status', 'pending');
         }
+
+        const { data: bookings, error } = await query;
+        const container = document.getElementById('bookings-container');
+        
+        if (error) {
+            container.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+            return;
+        }
+
+        if (!bookings || bookings.length === 0) {
+            container.innerHTML = '<p style="color:#64748B;">No bookings found.</p>';
+            return;
+        }
+
+        let html = '<table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">';
+        html += '<tr style="border-bottom: 2px solid #E2E8F0;"><th style="padding: 8px;">Code</th><th style="padding: 8px;">Place</th><th style="padding: 8px;">Date</th><th style="padding: 8px;">Action / Status</th></tr>';
+        
+        bookings.forEach(b => {
+            html += '<tr style="border-bottom: 1px solid #E2E8F0;">';
+            html += '<td style="padding: 8px; font-weight: 800; color: #3B82F6;">' + b.reference_code + '</td>';
+            html += '<td style="padding: 8px;">' + b.place_name + '</td>';
+            html += '<td style="padding: 8px; color: #64748B;">' + new Date(b.created_at).toLocaleDateString() + '</td>';
+            html += '<td style="padding: 8px;">';
+            
+            if (!showHistory) {
+                html += '<button class="btn-approve" style="padding: 4px 8px; font-size: 11px;" onclick="approveBooking(\'' + b.id + '\', \'' + b.user_id + '\', \'' + b.reference_code + '\')">✅ Verify & Award 10 🪙</button>';
+            } else {
+                html += '<span style="font-weight: 800; color: #10B981; font-size: 11px; text-transform: uppercase;">' + b.status + '</span>';
+            }
+            
+            html += '</td>';
+            html += '</tr>';
+        });
+        html += '</table>';
         container.innerHTML = html;
     }
 
@@ -110,11 +202,9 @@
         const action = status === 'approved' ? 'approve' : 'reject';
         if (!confirm('Are you sure you want to ' + action + ' this report?')) return;
 
-        // 1. Update Report Status
         const { error: updateError } = await supabaseClient.from('map_reports').update({ status: status }).eq('id', reportId);
         if (updateError) return alert("Error updating: " + updateError.message);
 
-        // 2. Award Tokens if Approved
         if (status === 'approved') {
             const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
                 p_user_id: userId,
@@ -123,17 +213,27 @@
                 p_ref_id: reportId
             });
             
-            if (tokenError) {
-                alert("Error awarding tokens: " + tokenError.message);
-            } else if (data && data.success) {
-                alert("✅ Report approved and 5 Buddycoins awarded!");
-            } else if (data && !data.success) {
-                alert("Report approved, but tokens not awarded: " + data.message);
-            }
+            if (tokenError) alert("Error awarding tokens: " + tokenError.message);
+            else if (data && data.success) alert("✅ Report approved and 5 Buddycoins awarded!");
         }
 
-        // 3. Reload list
         loadReports();
+    }
+
+    async function approveBooking(bookingId, userId, refCode) {
+        if (!confirm("Verify this booking and award 10 Buddycoins?")) return;
+        
+        await supabaseClient.from('appointments').update({ status: 'completed' }).eq('id', bookingId);
+        
+        await supabaseClient.rpc('award_tokens', {
+            p_user_id: userId,
+            p_amount: 10,
+            p_type: 'vendor_booking',
+            p_ref_id: refCode
+        });
+
+        alert("Booking verified and coins awarded!");
+        loadBookings();
     }
 
     init();
