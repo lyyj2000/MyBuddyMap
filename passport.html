@@ -388,6 +388,31 @@
     <h3 style="margin: 0 0 10px 0; color: #388E3C; font-size: 15px; font-weight: 800;">📋 My Map Reports</h3>
     <div id="my-reports-list"></div>
 </div>
+<!-- CONNECTION REQUESTS PANEL -->
+<div id="requests-panel" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none;">
+    <h3 style="margin: 0 0 10px 0; color: #388E3C; font-size: 15px; font-weight: 800;">🐾 Connection Requests</h3>
+    <div id="connection-requests-list"></div>
+</div>
+<!-- BUDDY ALERTS PANEL -->
+<div id="buddy-alerts-panel" style="background: #FFFBEB; border: 1px solid #FDE047; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none;">
+    <h3 style="margin: 0 0 10px 0; color: #D97706; font-size: 15px; font-weight: 800;">🔔 Buddy Alerts</h3>
+    <div id="buddy-alerts-list"></div>
+</div>
+    </div>
+    <!-- End of Token Wallet -->
+
+    <!-- WHATSAPP ALERTS PANEL -->
+    <!-- WHATSAPP ALERTS PANEL -->
+    <div id="whatsapp-panel" style="background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none;">
+        <h3 style="margin: 0 0 5px 0; color: #166534; font-size: 14px; font-weight: 800;">📱 Click & Connect Alerts</h3>
+        <p style="margin: 0 0 10px 0; color: #15803D; font-size: 12px;">Add your WhatsApp number to get alerted when your buddies drop a 'Click & Connect' pin nearby!</p>
+        <div style="display: flex; gap: 8px; align-items: center; width: 100%;">
+            <input type="tel" id="user-phone-input" placeholder="+65 9123 4567" style="flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid #86EFAC; border-radius: 6px; font-family: inherit; font-size: 13px; box-sizing: border-box;">
+            <button onclick="savePhoneNumber()" style="width: auto !important; flex: 0 0 auto; background: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 13px; box-sizing: border-box; margin: 0;">Save</button>
+        </div>
+    </div>
+    <!-- END WHATSAPP PANEL -->
+
     <h3 style="margin-bottom:10px; color: #388E3C; font-weight: 800;">Registered Pets</h3>
     <div id="pets-list"></div>
 
@@ -731,7 +756,14 @@
         }).subscribe();
     } catch (e) { console.warn("Realtime tokens not active", e); }
 
-    await claimPendingReferral(); await loadPets(); await loadMyReports();
+await claimPendingReferral(); await loadPets(); await loadMyReports(); await loadConnectionRequests(); await loadBuddyAlerts();
+
+        // Show WhatsApp panel if they don't have a number saved yet
+    if (!window.userProfile.phone_number) {
+        document.getElementById('whatsapp-panel').style.display = 'block';
+    } else {
+        document.getElementById('whatsapp-panel').style.display = 'none';
+    }
   }
 
   // =====================================================================
@@ -871,7 +903,6 @@
     const chip = cleanText(pet.microchip, 20) || 'NOT PROVIDED';
     
     const ownerPhone = cleanText(pet.owner_phone, 20) || 'Not set';
-    const bloodType = cleanText(pet.blood_type, 15) || 'Unknown';
     const allergies = cleanText(pet.allergies, 30) || 'None';
     const markings = cleanText(pet.markings, 30) || 'Not set';
 
@@ -981,7 +1012,6 @@
           <!-- EMERGENCY & MEDICAL GRID -->
           <div class="medical-panel">
             <div class="data-group"><span class="data-label">Owner Contact</span><span class="data-value">${esc(ownerPhone)}</span></div>
-            <div class="data-group"><span class="data-label">Blood Type</span><span class="data-value">${esc(bloodType)}</span></div>
             <div class="data-group"><span class="data-label">Allergies</span><span class="data-value">${esc(allergies)}</span></div>
             <div class="data-group"><span class="data-label">Markings</span><span class="data-value">${esc(markings)}</span></div>
           </div>
@@ -1169,7 +1199,6 @@
     const weightRaw = document.getElementById('pet-weight').value;
     const microchip = document.getElementById('pet-microchip').value.replace(/\D/g, '');
     const ownerPhone = cleanText(document.getElementById('pet-owner-phone').value, 20);
-    const bloodType = cleanText(document.getElementById('pet-blood').value, 15);
     const allergies = cleanText(document.getElementById('pet-allergies').value, 30);
     const markings = cleanText(document.getElementById('pet-markings').value, 30);
     const fileInput = document.getElementById('pet-photo-input');
@@ -1197,7 +1226,7 @@
 
       if (error) return showCustomAlert('Error', error.message);
 
-      ['pet-name', 'pet-birthday', 'pet-weight', 'pet-microchip', 'pet-owner-phone', 'pet-blood', 'pet-allergies', 'pet-markings', 'pet-photo-input']
+      ['pet-name', 'pet-birthday', 'pet-weight', 'pet-microchip', 'pet-owner-phone', 'pet-allergies', 'pet-markings', 'pet-photo-input']
         .forEach(id => { document.getElementById(id).value = ''; });
 
       showCustomAlert('Passport Issued! 🛂', 'Your digital passport has been generated.');
@@ -1347,6 +1376,202 @@ async function loadMyReports() {
 // =====================================================================
 //  BOOT
 // =====================================================================
+async function loadConnectionRequests() {
+    if (!currentUser) return;
+
+    const { data: requests, error } = await db.from('connect_requests')
+        .select('*')
+        .or(`receiver_id.eq.${currentUser.id},sender_id.eq.${currentUser.id}`)
+        .in('status', ['pending', 'accepted']);
+
+    const panel = document.getElementById('requests-panel');
+    const list = document.getElementById('connection-requests-list');
+    if (!panel || !list) return;
+
+    if (error) {
+        console.error("Error loading connection requests:", error);
+        return;
+    }
+
+    if (!requests || requests.length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+
+    panel.style.display = 'block';
+    let html = '';
+
+    for (const req of requests) {
+        const { data: sender } = await db.from('profiles').select('email').eq('id', req.sender_id).single();
+        const { data: ping } = await db.from('active_pings').select('pet_name, place_name').eq('id', req.ping_id).single();
+
+        const senderName = sender ? sender.email.split('@')[0] : 'A buddy';
+        const petName = ping ? ping.pet_name : 'their pet';
+        const place = ping ? ping.place_name : 'the park';
+
+        // BUILD THE UI
+        if (req.status === 'pending') {
+            const isHost = currentUser.id === req.receiver_id;
+            
+            if (isHost) {
+                // YOU are the host (Window A). Show Accept/Decline.
+                html += `
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 800; color: #1E293B;">${esc(senderName)}</div>
+                            <div style="font-size: 12px; color: #64748B; margin-top: 2px;">wants to meet ${esc(petName)} at ${esc(place)}</div>
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button onclick="acceptRequest('${req.id}')" style="background: #10B981; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">Accept</button>
+                            <button onclick="declineRequest('${req.id}')" style="background: #EF4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">Decline</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // YOU are the seeker (Window B). Show "Waiting..."
+                html += `
+                    <div style="background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 800; color: #1E293B;">To: ${esc(petName)}</div>
+                            <div style="font-size: 12px; color: #64748B; margin-top: 2px;">Waiting for the host to accept...</div>
+                        </div>
+                        <div style="font-size: 20px;">⏳</div>
+                    </div>
+                `;
+            }
+        } else if (req.status === 'accepted') {
+            // ACCEPTED UI (GPS Meetup Verification)
+            const isHost = currentUser.id === req.receiver_id;
+            const role = isHost ? 'host' : 'seeker';
+            const reward = isHost ? '+20' : '+10';
+            const alreadyConfirmed = isHost ? req.host_confirmed_at : req.seeker_confirmed_at;
+
+            html += `
+                <div style="background: #F0FDF4; padding: 12px; border-radius: 8px; border: 1px solid #86EFAC; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 800; color: #15803D;">Connected with ${esc(senderName)}! 🎉</div>
+                        <div style="font-size: 12px; color: #166534; margin-top: 4px;">Meet up, then click below to earn ${reward} Buddycoins!</div>
+                    </div>
+                    <button onclick="verifyGPS('${req.id}', '${role}')" 
+                        style="background: ${alreadyConfirmed ? '#CBD5E1' : '#10B981'}; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;"
+                        ${alreadyConfirmed ? 'disabled' : ''}>
+                        ${alreadyConfirmed ? '⏳ Waiting for the other user...' : `📍 Confirm Meetup ${reward} 🪙`}
+                    </button>
+                </div>
+            `;
+        }
+    }
+    list.innerHTML = html;
+}
+
+// --- NEW HELPER FUNCTIONS ---
+async function acceptRequest(requestId) {
+    await db.from('connect_requests').update({ status: 'accepted' }).eq('id', requestId);
+    loadConnectionRequests();
+}
+
+async function declineRequest(requestId) {
+    await db.from('connect_requests').update({ status: 'declined' }).eq('id', requestId);
+    loadConnectionRequests();
+}
+
+async function verifyGPS(requestId, role) {
+    if (!navigator.geolocation) {
+        return alert("Your browser does not support GPS.");
+    }
+
+    alert("Getting your location. Please allow the browser permission request...");
+
+    navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            const { data, error } = await db.rpc('verify_meetup_gps', {
+                p_request_id: requestId,
+                p_role: role,
+                p_lat: lat,
+                p_lng: lng
+            });
+
+            if (error) return alert("Error: " + error.message);
+
+            alert(data.message);
+
+            if (data.success && data.message.includes('awarded')) {
+                if (window.userProfile) {
+                    window.userProfile.tokens += (role === 'host' ? 20 : 10);
+                    document.getElementById('token-balance').textContent = window.userProfile.tokens;
+                }
+            }
+            loadConnectionRequests();
+        },
+        (err) => {
+            alert("Could not get your location. Please enable GPS permissions in your browser.");
+        },
+        { enableHighAccuracy: true }
+    );
+}
+async function loadBuddyAlerts() {
+    if (!currentUser) return;
+
+    const { data: alerts, error } = await db.from('notifications')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .eq('is_read', false)
+        .order('created_at', { ascending: false });
+
+    const panel = document.getElementById('buddy-alerts-panel');
+    const list = document.getElementById('buddy-alerts-list');
+    if (!panel || !list) return;
+
+    if (error || !alerts || alerts.length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+
+    panel.style.display = 'block';
+    let html = '';
+
+    alerts.forEach(alert => {
+        html += `
+            <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #FEF3C7; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="font-size: 12px; font-weight: 600; color: #92400E;">${esc(alert.message)}</div>
+                <button onclick="markAlertRead('${alert.id}')" style="background: #F59E0B; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 800; cursor: pointer;">Dismiss</button>
+            </div>
+        `;
+    });
+    list.innerHTML = html;
+}
+
+async function markAlertRead(alertId) {
+    await db.from('notifications').update({ is_read: true }).eq('id', alertId);
+    loadBuddyAlerts();
+}
+async function savePhoneNumber() {
+    const phoneInput = document.getElementById('user-phone-input');
+    const phone = phoneInput.value.trim();
+
+    if (!phone || phone.length < 8) {
+        return showCustomAlert("Invalid Number", "Please enter a valid WhatsApp number (e.g. +65 9123 4567).");
+    }
+
+    const btn = event.target;
+    btn.textContent = "Saving...";
+    btn.disabled = true;
+
+    const { error } = await db.from('profiles').update({ phone_number: phone }).eq('id', currentUser.id);
+
+    btn.textContent = "Save";
+    btn.disabled = false;
+
+    if (error) {
+        showCustomAlert("Error", error.message);
+    } else {
+        showCustomAlert("Success! 📱", "Your WhatsApp number has been saved. You will now receive Buddy Alerts!");
+        document.getElementById('whatsapp-panel').style.display = 'none'; // Hide it after saving
+    }
+}
 checkUser();
 </script>
 </body>

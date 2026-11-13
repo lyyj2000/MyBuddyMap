@@ -201,22 +201,20 @@
     async function handleReport(reportId, userId, status) {
         const action = status === 'approved' ? 'approve' : 'reject';
         
-        // Ask admin for optional feedback
         const feedback = prompt(`Enter optional feedback for the user (they will see this in their Passport):`);
-        
-        // If they clicked cancel on the prompt, stop the action
         if (feedback === null) return; 
 
         if (!confirm('Are you sure you want to ' + action + ' this report?')) return;
 
-        // 1. Update Report Status & Feedback
-        const { error: updateError } = await supabaseClient.from('map_reports')
+        // Update with .select() to verify RLS allowed it
+        const { data: updateData, error: updateError } = await supabaseClient.from('map_reports')
             .update({ status: status, admin_feedback: feedback || null })
-            .eq('id', reportId);
+            .eq('id', reportId)
+            .select();
             
         if (updateError) return alert("Error updating: " + updateError.message);
+        if (!updateData || updateData.length === 0) return alert("Security Error: You do not have permission to update this report. Make sure you are logged in as the admin.");
 
-        // 2. Award Tokens if Approved
         if (status === 'approved') {
             const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
                 p_user_id: userId,
@@ -227,25 +225,34 @@
             
             if (tokenError) alert("Error awarding tokens: " + tokenError.message);
             else if (data && data.success) alert("✅ Report approved and 5 Buddycoins awarded!");
+            else if (data && !data.success) alert("Report approved, but tokens not awarded: " + data.message);
         }
 
-        // 3. Reload list
         loadReports();
     }
 
     async function approveBooking(bookingId, userId, refCode) {
         if (!confirm("Verify this booking and award 10 Buddycoins?")) return;
         
-        await supabaseClient.from('appointments').update({ status: 'completed' }).eq('id', bookingId);
+        // Update with .select() to verify RLS allowed it
+        const { data: updateData, error: updateError } = await supabaseClient.from('appointments')
+            .update({ status: 'completed' })
+            .eq('id', bookingId)
+            .select();
+            
+        if (updateError) return alert("Error: " + updateError.message);
+        if (!updateData || updateData.length === 0) return alert("Security Error: You do not have permission to update this booking. Make sure you are logged in as the admin.");
         
-        await supabaseClient.rpc('award_tokens', {
+        const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
             p_user_id: userId,
             p_amount: 10,
             p_type: 'vendor_booking',
             p_ref_id: refCode
         });
 
-        alert("Booking verified and coins awarded!");
+        if (tokenError) alert("Error: " + tokenError.message);
+        else alert("Booking verified and 10 Buddycoins awarded!");
+
         loadBookings();
     }
 

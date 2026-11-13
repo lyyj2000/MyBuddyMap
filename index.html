@@ -1250,27 +1250,29 @@ async function dropPing(placeId, placeName) {
         alert("Error dropping pin: " + error.message);
     } else {
         alert("You're on the map! Other owners at " + placeName + " can now see you for the next 2 hours. 🐾");
+
+        // --- PASTE THE NEW ALERT LOGIC HERE ---
+        const { data: pastConnections } = await supabaseClient
+            .from('connect_requests')
+            .select('sender_id, receiver_id')
+            .or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`)
+            .in('status', ['accepted', 'completed']);
+
+        if (pastConnections && pastConnections.length > 0) {
+            const buddyIds = pastConnections.map(conn => 
+                conn.sender_id === session.user.id ? conn.receiver_id : conn.sender_id
+            );
+            const uniqueBuddyIds = [...new Set(buddyIds)];
+
+            const notifications = uniqueBuddyIds.map(buddyId => ({
+                user_id: buddyId,
+                message: `Your buddy ${petName} just checked in at ${placeName}! Click & Connect to meet up.`
+            }));
+
+            await supabaseClient.from('notifications').insert(notifications);
+        }
+        // --- END OF NEW ALERT LOGIC ---
     }
-}
-
-// --- FETCH AND SHOW ACTIVE PINGS ---
-// Keep track of existing park markers
-const parkMarkerRegistry = new Map();
-
-// Create the custom marker icon
-function createClickConnectIcon(count) {
-    const displayCount = count > 99 ? "99+" : count > 0 ? String(count) : "";
-    return L.divIcon({
-        className: 'mybuddy-click-connect-icon',
-        html: `
-            <div class="cc-marker">
-                <img src="mybuddy_click_connect_transparent.png" class="cc-logo">
-                <span class="cc-count">${displayCount}</span>
-            </div>
-        `,
-        iconSize: [40, 50],   // <-- Scaled to match your other pins
-        iconAnchor: [20, 48]  // <-- Points bottom tip to exact location
-    });
 }
 
 async function loadActivePings() {
@@ -1313,32 +1315,46 @@ async function loadActivePings() {
             let popupContent = '<div class="popup" style="text-align:center; padding:10px;">';
             popupContent += '<h3 style="font-size:14px; margin-bottom:8px; color:#3B82F6;">🐾 Active Buddies!</h3>';
                 
-            placePings.forEach(ping => {
-                const dateObj = new Date(ping.created_at);
-                const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
-                                   dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // Changed to for...of loop so we can use 'await' to check connection status
+        for (const ping of placePings) {
+            const dateObj = new Date(ping.created_at);
+            const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
+                               dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-                let tierBadge = '';
-                if (ping.user_tier === 'Gold') tierBadge = '<span title="Gold Member" style="margin-left:4px;">🥇</span>';
-                else if (ping.user_tier === 'Silver') tierBadge = '<span title="Silver Member" style="margin-left:4px;">🥈</span>';
+            let tierBadge = '';
+            if (ping.user_tier === 'Gold') tierBadge = '<span title="Gold Member" style="margin-left:4px;">🥇</span>';
+            else if (ping.user_tier === 'Silver') tierBadge = '<span title="Silver Member" style="margin-left:4px;">🥈</span>';
 
-                const isMyPing = currentUserId === ping.user_id;
+            const isMyPing = currentUserId === ping.user_id;
 
-                popupContent += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">';
-                popupContent += '<div style="text-align:left;">';
-                popupContent += '<div style="font-size:12px; font-weight:bold; color:#334155;">' + esc(ping.pet_name) + ' ' + tierBadge + '</div>';
-                popupContent += '<div style="font-size:10px; color:#64748B;">Since ' + timeString + '</div>';
-                popupContent += '</div>';
-                
-                if (isMyPing) {
-                    popupContent += '<button onclick="cancelPing(\'' + ping.id + '\')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>';
-                } else {
-                    popupContent += '<button onclick="sendConnectRequest(\'' + ping.user_id + '\', \'' + ping.id + '\')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>';
-                }
-                popupContent += '</div>';
-            });
+            // --- NEW: Check if request already sent ---
+            let hasAlreadyConnected = false;
+            if (currentUserId && !isMyPing) {
+                const { data: existingReq } = await supabaseClient
+                    .from('connect_requests')
+                    .select('id')
+                    .eq('sender_id', currentUserId)
+                    .eq('ping_id', ping.id)
+                    .maybeSingle();
+                if (existingReq) hasAlreadyConnected = true;
+            }
+
+            popupContent += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">';
+            popupContent += '<div style="text-align:left;">';
+            popupContent += '<div style="font-size:12px; font-weight:bold; color:#334155;">' + esc(ping.pet_name) + ' ' + tierBadge + '</div>';
+            popupContent += '<div style="font-size:10px; color:#64748B;">Since ' + timeString + '</div>';
             popupContent += '</div>';
-
+            
+            if (isMyPing) {
+                popupContent += '<button onclick="cancelPing(\'' + ping.id + '\')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>';
+            } else if (hasAlreadyConnected) {
+                popupContent += '<button disabled style="background:#CBD5E1; color:#64748B; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:not-allowed;">⏳ Request Sent</button>';
+            } else {
+                popupContent += '<button onclick="sendConnectRequest(\'' + ping.user_id + '\', \'' + ping.id + '\')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>';
+            }
+            popupContent += '</div>';
+        }
+            
             let marker = parkMarkerRegistry.get(placeId);
 
             if (!marker) {
