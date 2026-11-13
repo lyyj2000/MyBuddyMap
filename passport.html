@@ -383,7 +383,11 @@
       </div>
       <button class="Buddycoin-wallet-btn" onclick="showTokenInfo()">Earn / Redeem</button>
     </div>
-
+<!-- MY REPORTS PANEL -->
+<div id="my-reports-panel" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 15px; margin-bottom: 20px; display: none;">
+    <h3 style="margin: 0 0 10px 0; color: #388E3C; font-size: 15px; font-weight: 800;">📋 My Map Reports</h3>
+    <div id="my-reports-list"></div>
+</div>
     <h3 style="margin-bottom:10px; color: #388E3C; font-weight: 800;">Registered Pets</h3>
     <div id="pets-list"></div>
 
@@ -727,7 +731,7 @@
         }).subscribe();
     } catch (e) { console.warn("Realtime tokens not active", e); }
 
-    await claimPendingReferral(); await checkUpgradeCriteria(); await loadPets();
+    await claimPendingReferral(); await loadPets(); await loadMyReports();
   }
 
   // =====================================================================
@@ -1288,7 +1292,58 @@ async function buyPass(featureName, cost) {
   // =====================================================================
   //  BOOT
   // =====================================================================
-  checkUser();
+// =====================================================================
+//  MY MAP REPORTS INBOX
+// =====================================================================
+async function loadMyReports() {
+    if (!currentUser) return;
+
+    const { data: reports, error } = await db.from('map_reports')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+    const panel = document.getElementById('my-reports-panel');
+    const list = document.getElementById('my-reports-list');
+    if (!panel || !list) return;
+
+    if (error) {
+        console.error("Error loading reports:", error);
+        return;
+    }
+
+    if (!reports || reports.length === 0) {
+        panel.style.display = 'none'; // Hide if no reports
+        return;
+    }
+
+    panel.style.display = 'block'; // Show if they have reports
+    let html = '';
+
+    reports.forEach(r => {
+        // Determine status badge color
+        let badgeColor = '#F59E0B'; // Pending (Orange)
+        let badgeText = 'Pending';
+        if (r.status === 'approved') { badgeColor = '#10B981'; badgeText = 'Approved (+5 🪙)'; }
+        if (r.status === 'rejected') { badgeColor = '#EF4444'; badgeText = 'Rejected'; }
+
+        html += `
+            <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div>
+                    <div style="font-size: 13px; font-weight: 800; color: #1E293B;">${esc(r.place_name)}</div>
+                    <div style="font-size: 10px; color: #64748B; margin-top: 2px;">${esc(r.report_type.toUpperCase())} • ${new Date(r.created_at).toLocaleDateString()}</div>
+                </div>
+                <span style="background: ${badgeColor}20; color: ${badgeColor}; padding: 4px 8px; border-radius: 99px; font-size: 10px; font-weight: 800;">${badgeText}</span>
+            </div>
+        `;
+    });
+    list.innerHTML = html;
+}
+
+// =====================================================================
+//  BOOT
+// =====================================================================
+checkUser();
 </script>
 </body>
 </html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyBuddy - Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { font-family: 'Inter', sans-serif; background: #F8FAFC; color: #1E293B; margin: 0; padding: 20px; }
+  .container { max-width: 800px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 15px; margin-bottom: 20px; }
+  h1 { margin: 0; font-size: 24px; color: #388E3C; font-weight: 800; }
+  .report-card { background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+  .report-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+  .badge { background: #FEF3C7; color: #D97706; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; height: fit-content; }
+  .evidence-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; border: 1px solid #E2E8F0; object-fit: contain; }
+  .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+  .btn-approve { background: #10B981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1; }
+  .btn-reject { background: #EF4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 800; cursor: pointer; flex: 1; }
+  .btn-approve:hover { background: #059669; }
+  .btn-reject:hover { background: #DC2626; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🛡️ MyBuddy Admin Dashboard</h1>
+        <button onclick="supabaseClient.auth.signOut().then(()=>location.reload())" style="background:none; border:none; color:#EF4444; font-weight:700; cursor:pointer;">Log Out</button>
+    </div>
+
+    <div id="auth-warning" class="hidden" style="text-align:center; margin-top:50px;">
+        <h2>Access Denied</h2>
+        <p>You must log in with your admin account.</p>
+        <a href="passport.html" style="background:#388E3C; color:white; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:800;">Go to Passport to Log In</a>
+    </div>
+
+    <div id="reports-container">
+        <p style="text-align:center; color:#64748B;">Loading pending reports...</p>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = "https://iriquwemmnvdorubcksi.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_RgPoktjsKsFBoD-0_l0-ig_Gh4SaZSh"; 
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    const ADMIN_EMAIL = "lyyj2000@yahoo.com";
+    let currentUser = null;
+
+    async function init() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        
+        if (!session || session.user.email !== ADMIN_EMAIL) {
+            document.getElementById('reports-container').classList.add('hidden');
+            document.getElementById('auth-warning').classList.remove('hidden');
+            return;
+        }
+
+        currentUser = session.user;
+        loadReports();
+    }
+
+    async function loadReports() {
+        const { data: reports, error } = await supabaseClient
+            .from('map_reports')
+            .select('*')
+            .eq('status', 'pending')
+            .order('created_at', { ascending: true });
+
+        const container = document.getElementById('reports-container');
+        
+        if (error) {
+            container.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+            return;
+        }
+
+        if (reports.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px; background:white; border-radius:12px; border:1px solid #E2E8F0;"><h3>🎉 All caught up!</h3><p style="color:#64748B;">No pending reports at the moment.</p></div>';
+            return;
+        }
+
+        let html = '';
+        for (let i = 0; i < reports.length; i++) {
+            let r = reports[i];
+            let evidenceHTML = r.evidence_url ? '<p style="font-size:12px; font-weight:700; margin-top:15px; margin-bottom:5px;">Evidence:</p><img src="' + r.evidence_url + '" class="evidence-img">' : '';
+            
+            html += '<div class="report-card">';
+            html += '<div class="report-header">';
+            html += '<div>';
+            html += '<h3 style="margin:0 0 5px 0; font-size:18px;">' + r.place_name + '</h3>';
+            html += '<p style="margin:0; font-size:13px; color:#64748B;">Submitted by: ' + r.user_id.substring(0,8) + '...</p>';
+            html += '</div>';
+            html += '<span class="badge">' + r.report_type.toUpperCase() + '</span>';
+            html += '</div>';
+            html += '<p style="background:#F8FAFC; padding:10px; border-radius:8px; font-size:14px; margin:10px 0;">' + r.report_content + '</p>';
+            html += evidenceHTML;
+            html += '<div class="btn-group">';
+            html += '<button class="btn-approve" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'approved\')">✅ Approve & Award 5 🪙</button>';
+            html += '<button class="btn-reject" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'rejected\')">❌ Reject</button>';
+            html += '</div>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    async function handleReport(reportId, userId, status) {
+        const action = status === 'approved' ? 'approve' : 'reject';
+        if (!confirm('Are you sure you want to ' + action + ' this report?')) return;
+
+        // 1. Update Report Status
+        const { error: updateError } = await supabaseClient.from('map_reports').update({ status: status }).eq('id', reportId);
+        if (updateError) return alert("Error updating: " + updateError.message);
+
+        // 2. Award Tokens if Approved
+        if (status === 'approved') {
+            const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
+                p_user_id: userId,
+                p_amount: 5,
+                p_type: 'map_report',
+                p_ref_id: reportId
+            });
+            
+            if (tokenError) {
+                alert("Error awarding tokens: " + tokenError.message);
+            } else if (data && data.success) {
+                alert("✅ Report approved and 5 Buddycoins awarded!");
+            } else if (data && !data.success) {
+                alert("Report approved, but tokens not awarded: " + data.message);
+            }
+        }
+
+        // 3. Reload list
+        loadReports();
+    }
+
+    init();
+</script>
+</body>
+</html>

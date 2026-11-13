@@ -1675,6 +1675,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+let currentReportPlace = { id: "", name: "" };
+
 async function openReportModal(placeId, placeName) {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (!session) {
@@ -1683,32 +1685,72 @@ async function openReportModal(placeId, placeName) {
     }
 
     currentReportPlace = { id: placeId, name: placeName };
-    // 2. Ask for the type of report
-    const type = prompt(`What are you reporting for ${placeName}?\n\nType 1 for: Hours Changed\nType 2 for: Permanently Closed\nType 3 for: Promotion`);
-    if (!type) return;
-    
-    let reportType = type === '1' ? 'hours' : type === '2' ? 'closed' : 'promo';
-    
-    // 3. Ask for details
-    const content = prompt(`Please provide details for the ${reportType} update:`);
-    if (!content) return;
+    document.getElementById('report-place-name').textContent = placeName;
+    document.getElementById('report-type').value = "hours";
+    document.getElementById('report-content').value = "";
+    document.getElementById('report-evidence').value = ""; // Clear file input
+    document.getElementById('report-modal').style.display = "flex";
+}
 
-    // 4. Send to Supabase
+function closeReportModal() {
+    document.getElementById('report-modal').style.display = "none";
+}
+
+async function submitReport() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+
+    const type = document.getElementById('report-type').value;
+    const content = document.getElementById('report-content').value.trim();
+    const fileInput = document.getElementById('report-evidence');
+    
+    if (content.length < 5) {
+        alert("Please provide a bit more detail.");
+        return;
+    }
+
+    const btn = document.getElementById('report-submit-btn');
+    btn.textContent = "Submitting...";
+    btn.disabled = true;
+
+    // Handle Image to Base64
+    let evidenceBase64 = null;
+    if (fileInput.files && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        if (file.size > 2000000) { // 2MB limit
+            alert("Image is too large. Please upload a photo under 2MB.");
+            btn.textContent = "Submit (+5 🪙)"; 
+            btn.disabled = false; 
+            return;
+        }
+        
+        evidenceBase64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = err => reject(err);
+            reader.readAsDataURL(file);
+        });
+    }
+
     const { error } = await supabaseClient.from('map_reports').insert({
         user_id: session.user.id,
-        place_id: placeId,
-        place_name: placeName,
-        report_type: reportType,
-        report_content: content
+        place_id: currentReportPlace.id,
+        place_name: currentReportPlace.name,
+        report_type: type,
+        report_content: content,
+        evidence_url: evidenceBase64
     });
+
+    btn.textContent = "Submit (+5 🪙)";
+    btn.disabled = false;
 
     if (error) {
         alert("Error submitting report: " + error.message);
     } else {
-        alert("Thank you! Your report is pending admin approval. You'll earn 5 tokens once approved!");
+        closeReportModal();
+        alert("Thank you! Your report is pending admin approval. You will earn 5 Buddycoins once approved!");
     }
 }
-
 
 async function dropPing(placeId, placeName) {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1977,6 +2019,32 @@ document.addEventListener('click', function(e) {
     </div>
 </div>
 
+<div id="report-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+  <div style="background: white; width: 90%; max-width: 400px; border-radius: 16px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); font-family: 'Inter', sans-serif;">
+    <h3 style="margin: 0 0 4px 0; color: #1E293B; font-size: 18px; font-weight: 800;">Update Information</h3>
+    <p id="report-place-name" style="margin: 0 0 16px 0; color: #64748B; font-size: 13px; font-weight: 600;"></p>
+    
+    <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">What needs updating?</label>
+    <select id="report-type" style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: #1E293B; margin-bottom: 16px; outline: none;">
+      <option value="hours">Operating Hours</option>
+      <option value="contact">Phone / WhatsApp</option>
+      <option value="address">Address / Location</option>
+      <option value="other">Other Info</option>
+    </select>
+
+    <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 6px;">Details</label>
+    <textarea id="report-content" rows="3" placeholder="e.g. They are now closed on Sundays..." style="width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 500; color: #1E293B; margin-bottom: 10px; outline: none; resize: none;"></textarea>
+
+    <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin-top: 10px; margin-bottom: 6px;">Upload Evidence (Optional)</label>
+    <input type="file" id="report-evidence" accept="image/*" style="width: 100%; padding: 8px; border: 2px solid #E2E8F0; border-radius: 8px; font-family: inherit; font-size: 12px; color: #1E293B; margin-bottom: 20px;">
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="closeReportModal()" style="flex: 1; padding: 12px; background: #F1F5F9; color: #475569; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: inherit;">Cancel</button>
+      <button onclick="submitReport()" id="report-submit-btn" style="flex: 1; padding: 12px; background: #388E3C; color: #FDE047; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: inherit;">Submit (+5 🪙)</button>
+    </div>
+  </div>
+</div>
+<!-- END REPORT MODAL -->
 
 <div id="pricing-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
     <div style="background: white; width: 90%; max-width: 800px; max-height: 80vh; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; position: relative;">
