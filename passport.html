@@ -1327,13 +1327,17 @@ async function loadMyReports() {
         if (r.status === 'approved') { badgeColor = '#10B981'; badgeText = 'Approved (+5 🪙)'; }
         if (r.status === 'rejected') { badgeColor = '#EF4444'; badgeText = 'Rejected'; }
 
+        // Build feedback text if it exists
+        let feedbackHTML = r.admin_feedback ? `<div style="font-size: 11px; color: #64748B; margin-top: 6px; font-style: italic;">💬 Admin: "${esc(r.admin_feedback)}"</div>` : '';
+
         html += `
             <div style="background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <div>
                     <div style="font-size: 13px; font-weight: 800; color: #1E293B;">${esc(r.place_name)}</div>
                     <div style="font-size: 10px; color: #64748B; margin-top: 2px;">${esc(r.report_type.toUpperCase())} • ${new Date(r.created_at).toLocaleDateString()}</div>
+                    ${feedbackHTML}
                 </div>
-                <span style="background: ${badgeColor}20; color: ${badgeColor}; padding: 4px 8px; border-radius: 99px; font-size: 10px; font-weight: 800;">${badgeText}</span>
+                <span style="background: ${badgeColor}20; color: ${badgeColor}; padding: 4px 8px; border-radius: 99px; font-size: 10px; font-weight: 800; white-space: nowrap;">${badgeText}</span>
             </div>
         `;
     });

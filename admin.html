@@ -200,11 +200,23 @@
 
     async function handleReport(reportId, userId, status) {
         const action = status === 'approved' ? 'approve' : 'reject';
+        
+        // Ask admin for optional feedback
+        const feedback = prompt(`Enter optional feedback for the user (they will see this in their Passport):`);
+        
+        // If they clicked cancel on the prompt, stop the action
+        if (feedback === null) return; 
+
         if (!confirm('Are you sure you want to ' + action + ' this report?')) return;
 
-        const { error: updateError } = await supabaseClient.from('map_reports').update({ status: status }).eq('id', reportId);
+        // 1. Update Report Status & Feedback
+        const { error: updateError } = await supabaseClient.from('map_reports')
+            .update({ status: status, admin_feedback: feedback || null })
+            .eq('id', reportId);
+            
         if (updateError) return alert("Error updating: " + updateError.message);
 
+        // 2. Award Tokens if Approved
         if (status === 'approved') {
             const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
                 p_user_id: userId,
@@ -217,6 +229,7 @@
             else if (data && data.success) alert("✅ Report approved and 5 Buddycoins awarded!");
         }
 
+        // 3. Reload list
         loadReports();
     }
 
