@@ -825,6 +825,14 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
         width: 100%;
     }
 
+        /* Fix for the top-right login icon on mobile */
+    #map-auth-icon {
+        top: 60px !important; 
+        right: 10px !important;
+        width: 70px !important;
+        height: 70px !important;
+    }
+
     /* Hide the search area button on mobile */
     .bottom-bar {
         display: none !important;
@@ -931,6 +939,11 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     <a href="passport.html" target="_blank" id="auth-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 8px; font-weight: 800; font-family: 'Inter', sans-serif; text-decoration: none; transition: 0.2s; background: #388E3C; color: white; font-size: 13px;">
         🛂 Log In / Sign Up
     </a>
+
+        <button id="logout-btn" onclick="supabaseClient.auth.signOut()" style="display: none; width: 100%; margin-top: 5px; background: #EF4444; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">
+        Log Out
+    </button>
+
 </div>
       <div class="header">
           <a href="#">
@@ -1900,6 +1913,9 @@ async function updateAuthUI() {
         btn.style.background = '#388E3C'; // Green base
         btn.style.color = '#FDE047'; // Gold words
         btn.style.whiteSpace = 'nowrap';
+                // Show Logout Button
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) logoutBtn.style.display = 'block';
         
         // Top Right Map Icon
         if (mapIcon) {
@@ -1911,6 +1927,9 @@ async function updateAuthUI() {
         btn.innerHTML = `🛂 Sign Up / Log In`;
         btn.style.background = '#388E3C'; // Green base
         btn.style.color = '#FFFFFF'; // White words for logged out
+                // Hide Logout Button
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) logoutBtn.style.display = 'none';
         
         if (mapIcon) {
             mapIcon.style.borderColor = '#E2E8F0'; // Default border
