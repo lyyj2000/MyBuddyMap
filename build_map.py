@@ -703,8 +703,10 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .centre-handle-icon{background:transparent!important;border:none!important}
 .centre-handle{
     width: 36px; height: 36px; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    border-radius: 50%; background: #3B82F6; color: #fff; font-size: 24px; font-weight: bold;
+    border-radius: 50%; background: #3882F6; color: #fff; font-size: 24px; font-weight: bold;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
+    z-index: 10000 !important; 
+    position: relative !important;
 }
 
 /* Popup outer container */

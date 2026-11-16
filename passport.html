@@ -577,7 +577,7 @@
       text-decoration: underline;
     }
 
-    .lost-banner-qr { width: 66px; height: 66px; background: #fff; padding: 3px; border-radius: 6px; flex-shrink: 0; margin-right: 55px; }
+    .lost-banner-qr { width: 66px; height: 66px; background: #fff; padding: 3px; border-radius: 6px; flex-shrink: 0; margin-right: 85px; }
 
     .lost-banner-qr canvas,
     .lost-banner-qr img {
@@ -1325,14 +1325,23 @@
           </div>
         </div>
 
-        <button id="btn-addpet" onclick="addPet()" style="margin-top:10px;">Add Pet</button>
-      </div>
+            <button id="btn-addpet" onclick="addPet()" style="margin-top:10px;">Add Pet</button>
+        </div>
     </details>
-    <button onclick="signOut()" style="display: block !important; width: 100% !important; background:#fff !important; color:#F44336 !important; border:2px solid #F44336 !important; margin-top:20px !important; padding: 14px !important; font-size: 16px !important; border-radius: 8px !important; box-sizing: border-box !important; font-weight: 800 !important; cursor: pointer !important; transition: 0.2s !important;" onmouseover="this.style.background='#F44336'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#F44336';">
-        Log Out
-    </button>
+    
+    <!-- GLOBAL ACTION BUTTONS (Side-by-side) -->
+    <div style="display: flex; gap: 8px; width: 100%; margin-top: 20px;">
+        <button onclick="deleteFirstPet()" style="flex: 1; background:#fff; color:#F44336; border:2px solid #F44336; border-radius:8px; font-weight:800; cursor:pointer; font-family:'Baloo 2', cursive; font-size:13px; padding: 12px; margin: 0; transition: 0.2s;" onmouseover="this.style.background='#F44336'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#F44336';">
+            🗑️ Delete Passport
+        </button>
+        
+        <button onclick="signOut()" style="flex: 1; background:#fff; color:#F44336; border:2px solid #F44336; border-radius:8px; font-weight:800; cursor:pointer; font-family:'Baloo 2', cursive; font-size:13px; padding: 12px; margin: 0; transition: 0.2s;" onmouseover="this.style.background='#F44336'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#F44336';">
+            Log Out
+        </button>
+    </div>
+    
   </div>
-  </div>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -1959,8 +1968,8 @@
         <div class="action-buttons">
           ${upgradeBtnHTML}
           ${lostActionHTML}
-          <button class="upgrade-btn delete-btn" data-action="delete" data-id="${esc(pet.id)}" style="margin-top: 15px;">🗑️ Delete Passport</button>
         </div>
+
       </div>`;
     }
 
