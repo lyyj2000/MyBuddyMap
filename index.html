@@ -122,8 +122,10 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
 .centre-handle-icon{background:transparent!important;border:none!important}
 .centre-handle{
     width: 36px; height: 36px; border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    border-radius: 50%; background: #3B82F6; color: #fff; font-size: 24px; font-weight: bold;
+    border-radius: 50%; background: #3882F6; color: #fff; font-size: 24px; font-weight: bold;
     display: flex; align-items: center; justify-content: center; cursor: pointer;
+    z-index: 10000 !important; 
+    position: relative !important;
 }
 
 /* Popup outer container */
@@ -640,8 +642,17 @@ window.handleGrab = function(e) {
 }
 
   const SUPABASE_URL = "https://iriquwemmnvdorubcksi.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_RgPoktjsKsFBoD-0_l0-ig_Gh4SaZSh"; 
+  const SUPABASE_KEY = "sb_publishable_RgPoktjsKsFBoD-0_l0-ig_Gh4SaZSh";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// PASTE THE NEW REFERRAL CODE HERE
+const urlParams = new URLSearchParams(window.location.search);
+const pendingRef = urlParams.get('ref');
+if (pendingRef) {
+    localStorage.setItem('mybuddy_pending_ref', pendingRef);
+    console.log("Referral captured:", pendingRef);
+}
+
 function popupHTML(c, st) {
   const color = st.key==="open" ? "#10B981" : "#9CA3AF";
   

@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   body { font-family: 'Inter', sans-serif; background: #F8FAFC; color: #1E293B; margin: 0; padding: 20px; }
-  .container { max-width: 850px; margin: 0 auto; }
+  .container { max-width: 900px; margin: 0 auto; }
   .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #E2E8F0; padding-bottom: 15px; margin-bottom: 20px; }
   h1 { margin: 0; font-size: 24px; color: #388E3C; font-weight: 800; }
   .report-card { background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
@@ -21,6 +21,8 @@
   .btn-approve:hover { background: #059669; }
   .btn-reject:hover { background: #DC2626; }
   .hidden { display: none !important; }
+  .section-title { font-size: 18px; color: #1E293B; margin-bottom: 15px; margin-top: 40px; border-left: 4px solid #388E3C; padding-left: 10px; }
+  .loading-text { color: #64748B; }
 </style>
 </head>
 <body>
@@ -41,18 +43,22 @@
     </div>
 
     <div id="dashboard-content">
-        <div id="reports-section">
-            <h2 style="font-size: 18px; color: #1E293B; margin-bottom: 15px;" id="reports-title">Pending Map Reports</h2>
-            <div id="reports-container">
-                <p style="text-align:center; color:#64748B;">Loading reports...</p>
-            </div>
+        <!-- REFERRALS SECTION -->
+        <h2 class="section-title">🤝 Pending Referral Rewards</h2>
+        <div id="referrals-container" style="margin-bottom: 20px;">
+            <p class="loading-text">Loading referrals...</p>
         </div>
 
-        <div style="margin-top: 40px; border-top: 2px solid #E2E8F0; padding-top: 20px;">
-            <h2 style="font-size: 18px; color: #1E293B; margin-bottom: 15px;" id="bookings-title">Pending Vendor Bookings</h2>
-            <div id="bookings-container" style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px;">
-                <p style="color:#64748B;">Loading bookings...</p>
-            </div>
+        <!-- MAP REPORTS SECTION -->
+        <h2 class="section-title">📍 Map Reports</h2>
+        <div id="reports-container">
+            <p class="loading-text">Loading reports...</p>
+        </div>
+
+        <!-- VENDOR BOOKINGS SECTION -->
+        <h2 class="section-title">📅 Vendor Bookings</h2>
+        <div id="bookings-container" style="background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px;">
+            <p class="loading-text">Loading bookings...</p>
         </div>
     </div>
 </div>
@@ -76,32 +82,110 @@
         }
 
         currentUser = session.user;
-        loadReports();
-        loadBookings();
+        loadAllData();
     }
 
     function toggleHistory() {
         showHistory = !showHistory;
         const btn = document.getElementById('history-btn');
-        const repTitle = document.getElementById('reports-title');
-        const bookTitle = document.getElementById('bookings-title');
         
         if (showHistory) {
             btn.textContent = "⏳ View Pending";
             btn.style.background = "#F59E0B";
-            repTitle.textContent = "Map Report History";
-            bookTitle.textContent = "Vendor Booking History";
         } else {
             btn.textContent = "📜 View History";
             btn.style.background = "#3B82F6";
-            repTitle.textContent = "Pending Map Reports";
-            bookTitle.textContent = "Pending Vendor Bookings";
         }
         
+        loadAllData();
+    }
+
+    function loadAllData() {
+        loadReferrals();
         loadReports();
         loadBookings();
     }
 
+    // =====================================================================
+    //  REFERRALS
+    // =====================================================================
+    async function loadReferrals() {
+        let query = supabaseClient.from('referral_claims').select('*').order('created_at', { ascending: false });
+        
+        if (!showHistory) {
+            query = query.eq('status', 'pending');
+        } else {
+            query = query.neq('status', 'pending');
+        }
+
+        const { data: claims, error } = await query;
+        const container = document.getElementById('referrals-container');
+        
+        if (error) {
+            container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            return;
+        }
+
+        if (!claims || claims.length === 0) {
+            container.innerHTML = `<p class="loading-text">No referrals found.</p>`;
+            return;
+        }
+
+        let html = '';
+        for (const claim of claims) {
+            const { data: referrer } = await supabaseClient.from('profiles').select('email').eq('id', claim.referrer_id).single();
+            const referrerEmail = referrer ? referrer.email : 'Unknown';
+            
+            html += `
+                <div class="report-card">
+                    <div class="report-header">
+                        <div>
+                            <h3 style="margin:0; font-size:16px;">Referrer: ${referrerEmail}</h3>
+                            <p style="margin:4px 0; font-size:12px; color:#64748B;">Date: ${new Date(claim.created_at).toLocaleDateString()}</p>
+                        </div>
+                        ${!showHistory ? `
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn-approve" style="padding: 8px 12px; font-size:12px; flex: none;" onclick="approveReferral('${claim.id}', '${claim.referrer_id}')">✅ Approve & Award 50 🪙</button>
+                            <button class="btn-reject" style="padding: 8px 12px; font-size:12px; flex: none;" onclick="rejectReferral('${claim.id}')">❌ Reject</button>
+                        </div>` : `<span class="badge">${claim.status.toUpperCase()}</span>`}
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    async function approveReferral(claimId, referrerId) {
+        if (!confirm("Approve this referral and award 50 Buddycoins to the sender?")) return;
+        
+        const { data: updateData, error: updateError } = await supabaseClient
+            .from('referral_claims').update({ status: 'approved' }).eq('id', claimId).select();
+            
+        if (updateError || !updateData.length) return alert("Security Error or Update Failed.");
+        
+        const { data, error } = await supabaseClient.rpc('award_tokens', {
+            p_user_id: referrerId,
+            p_amount: 50,
+            p_type: 'referral_reward',
+            p_ref_id: claimId
+        });
+
+        if (error) alert("Error awarding: " + error.message);
+        else alert("Referral approved! 50 Buddycoins sent to the sender.");
+        
+        loadReferrals();
+    }
+
+    async function rejectReferral(claimId) {
+        if (!confirm("Reject this referral?")) return;
+        const { error } = await supabaseClient.from('referral_claims').update({ status: 'rejected' }).eq('id', claimId);
+        if (error) return alert(error.message);
+        loadReferrals();
+    }
+
+    // =====================================================================
+    //  MAP REPORTS
+    // =====================================================================
     async function loadReports() {
         let query = supabaseClient.from('map_reports').select('*').order('created_at', { ascending: false });
         
@@ -115,44 +199,70 @@
         const container = document.getElementById('reports-container');
         
         if (error) {
-            container.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+            container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
             return;
         }
 
         if (reports.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:30px; background:white; border-radius:12px; border:1px solid #E2E8F0;"><p style="color:#64748B;">No reports found.</p></div>';
+            container.innerHTML = `<p class="loading-text">No reports found.</p>`;
             return;
         }
 
         let html = '';
         reports.forEach(r => {
-            let evidenceHTML = r.evidence_url ? '<p style="font-size:12px; font-weight:700; margin-top:15px; margin-bottom:5px;">Evidence:</p><img src="' + r.evidence_url + '" class="evidence-img">' : '';
+            let evidenceHTML = r.evidence_url ? `<p style="font-size:12px; font-weight:700; margin-top:15px; margin-bottom:5px;">Evidence:</p><img src="${r.evidence_url}" class="evidence-img">` : '';
             
-            html += '<div class="report-card">';
-            html += '<div class="report-header">';
-            html += '<div>';
-            html += '<h3 style="margin:0 0 5px 0; font-size:18px;">' + r.place_name + '</h3>';
-            html += '<p style="margin:0; font-size:13px; color:#64748B;">Submitted by: ' + r.user_id.substring(0,8) + '...</p>';
-            html += '</div>';
-            html += '<span class="badge">' + r.report_type.toUpperCase() + '</span>';
-            html += '</div>';
-            html += '<p style="background:#F8FAFC; padding:10px; border-radius:8px; font-size:14px; margin:10px 0;">' + r.report_content + '</p>';
-            html += evidenceHTML;
-            
-            html += '<div class="btn-group">';
+            html += `<div class="report-card">
+                <div class="report-header">
+                    <div>
+                        <h3 style="margin:0 0 5px 0; font-size:18px;">${r.place_name}</h3>
+                        <p style="margin:0; font-size:13px; color:#64748B;">Submitted by: ${r.user_id.substring(0,8)}...</p>
+                    </div>
+                    <span class="badge">${r.report_type.toUpperCase()}</span>
+                </div>
+                <p style="background:#F8FAFC; padding:10px; border-radius:8px; font-size:14px; margin:10px 0;">${r.report_content}</p>
+                ${evidenceHTML}
+                <div class="btn-group">`;
+                
             if (!showHistory) {
-                html += '<button class="btn-approve" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'approved\')">✅ Approve & Award 5 🪙</button>';
-                html += '<button class="btn-reject" onclick="handleReport(\'' + r.id + '\', \'' + r.user_id + '\', \'rejected\')">❌ Reject</button>';
+                html += `<button class="btn-approve" onclick="handleReport('${r.id}', '${r.user_id}', 'approved')">✅ Approve & Award 5 🪙</button>
+                         <button class="btn-reject" onclick="handleReport('${r.id}', '${r.user_id}', 'rejected')">❌ Reject</button>`;
             } else {
                 let color = r.status === 'approved' ? '#10B981' : '#EF4444';
-                html += '<p style="font-size:13px; color:' + color + '; font-weight:800; text-transform:uppercase;">Status: ' + r.status + '</p>';
+                html += `<p style="font-size:13px; color:${color}; font-weight:800; text-transform:uppercase;">Status: ${r.status}</p>`;
             }
-            html += '</div>';
-            html += '</div>';
+            html += `</div></div>`;
         });
         container.innerHTML = html;
     }
 
+    async function handleReport(reportId, userId, status) {
+        const action = status === 'approved' ? 'approve' : 'reject';
+        const feedback = prompt(`Enter optional feedback for the user:`);
+        if (feedback === null) return; 
+
+        if (!confirm(`Are you sure you want to ${action} this report?`)) return;
+
+        const { data: updateData, error: updateError } = await supabaseClient.from('map_reports')
+            .update({ status: status, admin_feedback: feedback || null }).eq('id', reportId).select();
+            
+        if (updateError) return alert("Error updating: " + updateError.message);
+        if (!updateData || updateData.length === 0) return alert("Security Error: Permission denied.");
+
+        if (status === 'approved') {
+            const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
+                p_user_id: userId, p_amount: 5, p_type: 'map_report', p_ref_id: reportId
+            });
+            if (tokenError) alert("Error awarding tokens: " + tokenError.message);
+            else if (data && data.success) alert("✅ Report approved and 5 Buddycoins awarded!");
+            else if (data && !data.success) alert("Report approved, but tokens not awarded: " + data.message);
+        }
+        loadReports();
+    }
+
+    // =====================================================================
+    //  VENDOR BOOKINGS
+    // =====================================================================
     async function loadBookings() {
         let query = supabaseClient.from('appointments').select('*').order('created_at', { ascending: false });
 
@@ -166,12 +276,12 @@
         const container = document.getElementById('bookings-container');
         
         if (error) {
-            container.innerHTML = '<p style="color:red;">Error: ' + error.message + '</p>';
+            container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
             return;
         }
 
         if (!bookings || bookings.length === 0) {
-            container.innerHTML = '<p style="color:#64748B;">No bookings found.</p>';
+            container.innerHTML = `<p class="loading-text">No bookings found.</p>`;
             return;
         }
 
@@ -180,74 +290,34 @@
         
         bookings.forEach(b => {
             html += '<tr style="border-bottom: 1px solid #E2E8F0;">';
-            html += '<td style="padding: 8px; font-weight: 800; color: #3B82F6;">' + b.reference_code + '</td>';
-            html += '<td style="padding: 8px;">' + b.place_name + '</td>';
-            html += '<td style="padding: 8px; color: #64748B;">' + new Date(b.created_at).toLocaleDateString() + '</td>';
+            html += `<td style="padding: 8px; font-weight: 800; color: #3B82F6;">${b.reference_code}</td>`;
+            html += `<td style="padding: 8px;">${b.place_name}</td>`;
+            html += `<td style="padding: 8px; color: #64748B;">${new Date(b.created_at).toLocaleDateString()}</td>`;
             html += '<td style="padding: 8px;">';
             
             if (!showHistory) {
-                html += '<button class="btn-approve" style="padding: 4px 8px; font-size: 11px;" onclick="approveBooking(\'' + b.id + '\', \'' + b.user_id + '\', \'' + b.reference_code + '\')">✅ Verify & Award 10 🪙</button>';
+                html += `<button class="btn-approve" style="padding: 4px 8px; font-size: 11px;" onclick="approveBooking('${b.id}', '${b.user_id}', '${b.reference_code}')">✅ Verify & Award 10 🪙</button>`;
             } else {
-                html += '<span style="font-weight: 800; color: #10B981; font-size: 11px; text-transform: uppercase;">' + b.status + '</span>';
+                html += `<span style="font-weight: 800; color: #10B981; font-size: 11px; text-transform: uppercase;">${b.status}</span>`;
             }
             
-            html += '</td>';
-            html += '</tr>';
+            html += '</td></tr>';
         });
         html += '</table>';
         container.innerHTML = html;
     }
 
-    async function handleReport(reportId, userId, status) {
-        const action = status === 'approved' ? 'approve' : 'reject';
-        
-        const feedback = prompt(`Enter optional feedback for the user (they will see this in their Passport):`);
-        if (feedback === null) return; 
-
-        if (!confirm('Are you sure you want to ' + action + ' this report?')) return;
-
-        // Update with .select() to verify RLS allowed it
-        const { data: updateData, error: updateError } = await supabaseClient.from('map_reports')
-            .update({ status: status, admin_feedback: feedback || null })
-            .eq('id', reportId)
-            .select();
-            
-        if (updateError) return alert("Error updating: " + updateError.message);
-        if (!updateData || updateData.length === 0) return alert("Security Error: You do not have permission to update this report. Make sure you are logged in as the admin.");
-
-        if (status === 'approved') {
-            const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
-                p_user_id: userId,
-                p_amount: 5,
-                p_type: 'map_report',
-                p_ref_id: reportId
-            });
-            
-            if (tokenError) alert("Error awarding tokens: " + tokenError.message);
-            else if (data && data.success) alert("✅ Report approved and 5 Buddycoins awarded!");
-            else if (data && !data.success) alert("Report approved, but tokens not awarded: " + data.message);
-        }
-
-        loadReports();
-    }
-
     async function approveBooking(bookingId, userId, refCode) {
         if (!confirm("Verify this booking and award 10 Buddycoins?")) return;
         
-        // Update with .select() to verify RLS allowed it
         const { data: updateData, error: updateError } = await supabaseClient.from('appointments')
-            .update({ status: 'completed' })
-            .eq('id', bookingId)
-            .select();
+            .update({ status: 'completed' }).eq('id', bookingId).select();
             
         if (updateError) return alert("Error: " + updateError.message);
-        if (!updateData || updateData.length === 0) return alert("Security Error: You do not have permission to update this booking. Make sure you are logged in as the admin.");
+        if (!updateData || updateData.length === 0) return alert("Security Error: Permission denied.");
         
         const { data, error: tokenError } = await supabaseClient.rpc('award_tokens', {
-            p_user_id: userId,
-            p_amount: 10,
-            p_type: 'vendor_booking',
-            p_ref_id: refCode
+            p_user_id: userId, p_amount: 10, p_type: 'vendor_booking', p_ref_id: refCode
         });
 
         if (tokenError) alert("Error: " + tokenError.message);

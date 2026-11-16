@@ -1223,8 +1223,17 @@ window.handleGrab = function(e) {
 }
 
   const SUPABASE_URL = "https://iriquwemmnvdorubcksi.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_RgPoktjsKsFBoD-0_l0-ig_Gh4SaZSh"; 
+  const SUPABASE_KEY = "sb_publishable_RgPoktjsKsFBoD-0_l0-ig_Gh4SaZSh";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// PASTE THE NEW REFERRAL CODE HERE
+const urlParams = new URLSearchParams(window.location.search);
+const pendingRef = urlParams.get('ref');
+if (pendingRef) {
+    localStorage.setItem('mybuddy_pending_ref', pendingRef);
+    console.log("Referral captured:", pendingRef);
+}
+
 function popupHTML(c, st) {
   const color = st.key==="open" ? "#10B981" : "#9CA3AF";
   
