@@ -922,6 +922,36 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     50% { transform: scale(1.15); } /* Blinks up and down */
 }
 
+@keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.lost-pet-marker-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+}
+.lost-pet-marker-wrapper::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(239, 68, 68, 0.5); /* Red pulsing ring */
+    border-radius: 50%;
+    animation: pulse-ring 1.5s infinite ease-in-out;
+}
+.lost-pet-img {
+    width: 46px;
+    height: 46px;
+    z-index: 2;
+    position: relative;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+}
+
 </style>
 </head>
 <body>
@@ -1856,6 +1886,23 @@ async function dropPing(placeId, placeName) {
 // Keep track of existing park markers
 const parkMarkerRegistry = new Map();
 
+
+// Create the custom marker icon
+function createClickConnectIcon(count) {
+    const displayCount = count > 99 ? "99+" : count > 0 ? String(count) : "";
+    return L.divIcon({
+        className: 'mybuddy-click-connect-icon',
+        html: `
+            <div class="cc-marker">
+                <img src="mybuddy_click_connect_transparent.png" class="cc-logo">
+                <span class="cc-count">${displayCount}</span>
+            </div>
+        `,
+        iconSize: [40, 50],
+        iconAnchor: [20, 48]
+    });
+}
+
 async function loadActivePings() {
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();
@@ -1896,46 +1943,45 @@ async function loadActivePings() {
             let popupContent = '<div class="popup" style="text-align:center; padding:10px;">';
             popupContent += '<h3 style="font-size:14px; margin-bottom:8px; color:#3B82F6;">🐾 Active Buddies!</h3>';
                 
-        // Changed to for...of loop so we can use 'await' to check connection status
-        for (const ping of placePings) {
-            const dateObj = new Date(ping.created_at);
-            const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
-                               dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            for (const ping of placePings) {
+                const dateObj = new Date(ping.created_at);
+                const timeString = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + 
+                                   dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            let tierBadge = '';
-            if (ping.user_tier === 'Gold') tierBadge = '<span title="Gold Member" style="margin-left:4px;">🥇</span>';
-            else if (ping.user_tier === 'Silver') tierBadge = '<span title="Silver Member" style="margin-left:4px;">🥈</span>';
+                let tierBadge = '';
+                if (ping.user_tier === 'Gold') tierBadge = '<span title="Gold Member" style="margin-left:4px;">🥇</span>';
+                else if (ping.user_tier === 'Silver') tierBadge = '<span title="Silver Member" style="margin-left:4px;">🥈</span>';
 
-            const isMyPing = currentUserId === ping.user_id;
+                const isMyPing = currentUserId === ping.user_id;
 
-            // --- NEW: Check if request already sent ---
-            let hasAlreadyConnected = false;
-            if (currentUserId && !isMyPing) {
-                const { data: existingReq } = await supabaseClient
-                    .from('connect_requests')
-                    .select('id')
-                    .eq('sender_id', currentUserId)
-                    .eq('ping_id', ping.id)
-                    .maybeSingle();
-                if (existingReq) hasAlreadyConnected = true;
+                let hasAlreadyConnected = false;
+                if (currentUserId && !isMyPing) {
+                    const { data: existingReq } = await supabaseClient
+                        .from('connect_requests')
+                        .select('id')
+                        .eq('sender_id', currentUserId)
+                        .eq('ping_id', ping.id)
+                        .maybeSingle();
+                    if (existingReq) hasAlreadyConnected = true;
+                }
+
+                popupContent += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">';
+                popupContent += '<div style="text-align:left;">';
+                popupContent += '<div style="font-size:12px; font-weight:bold; color:#334155;">' + esc(ping.pet_name) + ' ' + tierBadge + '</div>';
+                popupContent += '<div style="font-size:10px; color:#64748B;">Since ' + timeString + '</div>';
+                popupContent += '</div>';
+                
+                if (isMyPing) {
+                    popupContent += '<button onclick="cancelPing(\'' + ping.id + '\')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>';
+                } else if (hasAlreadyConnected) {
+                    popupContent += '<button disabled style="background:#CBD5E1; color:#64748B; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:not-allowed;">⏳ Request Sent</button>';
+                } else {
+                    popupContent += '<button onclick="sendConnectRequest(\'' + ping.user_id + '\', \'' + ping.id + '\')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>';
+                }
+                popupContent += '</div>';
             }
+            popupContent += '</div>';
 
-            popupContent += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#F8FAFC; padding:8px; border-radius:6px; border:1px solid #E2E8F0;">';
-            popupContent += '<div style="text-align:left;">';
-            popupContent += '<div style="font-size:12px; font-weight:bold; color:#334155;">' + esc(ping.pet_name) + ' ' + tierBadge + '</div>';
-            popupContent += '<div style="font-size:10px; color:#64748B;">Since ' + timeString + '</div>';
-            popupContent += '</div>';
-            
-            if (isMyPing) {
-                popupContent += '<button onclick="cancelPing(\'' + ping.id + '\')" style="background:#EF4444; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">❌ Cancel</button>';
-            } else if (hasAlreadyConnected) {
-                popupContent += '<button disabled style="background:#CBD5E1; color:#64748B; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:not-allowed;">⏳ Request Sent</button>';
-            } else {
-                popupContent += '<button onclick="sendConnectRequest(\'' + ping.user_id + '\', \'' + ping.id + '\')" style="background:#3B82F6; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">👋 Connect</button>';
-            }
-            popupContent += '</div>';
-        }
-            
             let marker = parkMarkerRegistry.get(placeId);
 
             if (!marker) {
@@ -1964,11 +2010,87 @@ async function loadActivePings() {
     }
 }
 
+// --- NEW LOST PETS FUNCTION ---
+// Keep track of lost pet markers
+const lostPetsRegistry = new Map();
+
+async function loadLostPets() {
+    try {
+        const { data: lostPets, error } = await supabaseClient
+            .from('pets')
+            .select('*')
+            .eq('is_lost', true)
+            .not('lost_lat', 'is', null)
+            .not('lost_lng', 'is', null);
+
+        if (error) throw error;
+
+        const updatedLostIds = new Set();
+
+        lostPets.forEach(pet => {
+            updatedLostIds.add(String(pet.id));
+            
+            const sosIcon = L.divIcon({
+                className: 'custom-sos-icon',
+                html: `
+                    <div class="lost-pet-marker-wrapper">
+                        <img src="lost_found.png" class="lost-pet-img">
+                    </div>
+                `,
+                iconSize: [60, 60],
+                iconAnchor: [30, 30],
+                popupAnchor: [0, -30]
+            });
+
+            let marker = lostPetsRegistry.get(pet.id);
+
+            let photoHtml = pet.photo_url ? `<img src="${pet.photo_url}" style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px;">` : '';
+            let rewardHtml = pet.lost_reward ? `<div style="color:#EF4444; font-weight:900; font-size:14px; margin-bottom:4px;">Reward: ${esc(pet.lost_reward)}</div>` : '';
+            
+            let popupContent = `
+                <div class="popup" style="text-align:center; padding:10px;">
+                    <h3 style="font-size:16px; margin-bottom:8px; color:#EF4444; font-weight:900;">🚨 LOST PET: ${esc(pet.name)}</h3>
+                    ${photoHtml}
+                    ${rewardHtml}
+                    <p style="font-size:12px; margin-bottom:4px;"><strong>Last seen:</strong> ${esc(pet.lost_last_seen || 'Unknown')}</p>
+                    <p style="font-size:12px; margin-bottom:8px;"><strong>Date:</strong> ${esc(pet.lost_date || 'Unknown')}</p>
+                    ${pet.lost_notes ? `<p style="font-size:11px; font-style:italic; color:#64748B; margin-bottom:8px;">"${esc(pet.lost_notes)}"</p>` : ''}
+                    <a href="tel:${esc(pet.lost_contact_phone)}" style="display:block; background:#EF4444; color:white; text-decoration:none; padding:8px; border-radius:6px; font-weight:bold; font-size:12px;">📞 Call Owner: ${esc(pet.lost_contact_phone)}</a>
+                </div>
+            `;
+
+            if (!marker) {
+                marker = L.marker([pet.lost_lat, pet.lost_lng], {
+                    icon: sosIcon,
+                    zIndexOffset: 5000 
+                }).addTo(map);
+                marker.bindPopup(popupContent);
+                lostPetsRegistry.set(pet.id, marker);
+            } else {
+                marker.setLatLng([pet.lost_lat, pet.lost_lng]);
+                marker.setPopupContent(popupContent);
+            }
+        });
+
+        for (const [petId, marker] of lostPetsRegistry) {
+            if (!updatedLostIds.has(petId)) {
+                map.removeLayer(marker);
+                lostPetsRegistry.delete(petId);
+            }
+        }
+
+    } catch (error) {
+        console.error("Lost Pet Map Error:", error);
+    }
+}
+
 // Initial loading
 loadActivePings();
+loadLostPets(); // <--- CALLED HERE
 
 // Auto-refresh every 30 seconds to catch new check-ins or expired ones
 setInterval(loadActivePings, 30000);
+setInterval(loadLostPets, 30000);
 
 // --- SEND A CONNECTION REQUEST ---
 async function sendConnectRequest(receiverId, pingId) {
@@ -1993,15 +2115,26 @@ async function sendConnectRequest(receiverId, pingId) {
 }
 
 async function cancelPing(pingId) {
-    if (!confirm("Are you sure you want to cancel your check-in? This will remove you from the map.")) return;
+    if (!confirm("Are you sure you want to cancel your check-in?")) return;
 
+    // 1. Delete from database
     const { error } = await supabaseClient.from('active_pings').delete().eq('id', pingId);
 
     if (error) {
         alert("Error cancelling check-in: " + error.message);
     } else {
+        // 2. Close any open popup
+        map.closePopup();
+        
+        // 3. Forcefully wipe all pins from the map memory
+        parkMarkerRegistry.forEach((marker) => {
+            map.removeLayer(marker);
+        });
+        parkMarkerRegistry.clear();
+        
+        // 4. Reload fresh data
         alert("Check-in cancelled! You have been removed from the map.");
-        loadActivePings(); // Instantly refresh the map to remove the pin
+        loadActivePings(); 
     }
 }
 
