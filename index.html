@@ -1275,6 +1275,9 @@ async function dropPing(placeId, placeName) {
     }
 }
 
+// Keep track of existing park markers
+const parkMarkerRegistry = new Map();
+
 async function loadActivePings() {
     try {
         const { data: { session } } = await supabaseClient.auth.getSession();

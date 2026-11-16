@@ -965,9 +965,6 @@ input[type=range] { width: 100%; accent-color: #1A1A1A; }
     <button id="pricing-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; color: #1E293B; transition: 0.2s; white-space: nowrap;">
         💲 Vet Pricing
     </button>
-    <a href="passport.html" target="_blank" id="split-passport-btn" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; background: #388E3C; color: white; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 13px; font-family: 'Inter', sans-serif; transition: 0.2s; white-space: nowrap;">
-        🛂 Sign Up / Log In
-    </a>
 </div>
 
 <div class="section-label">PRIMARY SERVICE</div>
@@ -1855,6 +1852,9 @@ async function dropPing(placeId, placeName) {
         // --- END OF NEW ALERT LOGIC ---
     }
 }
+
+// Keep track of existing park markers
+const parkMarkerRegistry = new Map();
 
 async function loadActivePings() {
     try {
