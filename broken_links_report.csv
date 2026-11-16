@@ -1,5 +1,5 @@
 Place Name,Link Type,URL,Error Status
-POINT VETERINARY SURGERY,Website,http://www.pointveterinarysurgery.com/,HTTP Error 520
+FRANKEL VETERINARY CENTRE,Website,https://frankelvet.com.sg,URL Error: _ssl.c:1000: The handshake operation timed out
 Beyond Paws,Instagram,https://www.instagram.com/beyond.paws/,HTTP Error 429
 Cloud Pet Grooming and Daycare Service,Instagram,https://www.instagram.com/cloudgrooming.sg,HTTP Error 429
 Cloud Pet Grooming and Daycare Service,Instagram,https://www.instagram.com/cloudgrooming.sg,HTTP Error 429
@@ -23,7 +23,6 @@ The Pet Safari - The STAR,Website,https://thepetsafari.com/sg/store-themes-conce
 Grooming Oasis,Instagram,https://www.instagram.com/groomingoasis_,HTTP Error 429
 Tailored Tails (Bukit Timah),Instagram,https://www.instagram.com/tailoredtailssg,HTTP Error 429
 Tailored Tails (Bukit Timah),Website,https://www.instagram.com/tailoredtailssg?igsh=MTE5ZWFqdzBkdXM1cw%3D%3D&utm_source=qr,HTTP Error 429
-FUR: A Vetreska Pet Store,Instagram,https://www.instagram.com/fur_vetreska/,HTTP Error 429
 Joy Doggy,Instagram,https://www.instagram.com/joydoggygrooming/,HTTP Error 429
 Swensen Swennie,Instagram,https://www.instagram.com/swensenswennie/?hl=en,HTTP Error 429
 Fur Flow by Animal Arts Academy,Instagram,http://instagram.com/animalartsacademy,HTTP Error 429
@@ -48,7 +47,6 @@ Fluffy Hearts Pets & Dogs Grooming,Instagram,https://www.instagram.com/wix,HTTP 
 Neko Neko – Holland Village,Instagram,https://www.instagram.com/neko_neko.co,HTTP Error 429
 Hachi Paw Boutique,Instagram,https://www.instagram.com/hachipawboutique,HTTP Error 429
 Suds & Scissors Pet Parlour,Instagram,http://instagram.com/sudsandscissors,HTTP Error 429
-36 GROOMING,Instagram,https://www.instagram.com/36grooming/,HTTP Error 429
 Cloud Pet Grooming & Spa Therapy,Instagram,https://www.instagram.com/cloudgrooming.sg,HTTP Error 429
 TGIFurday Grooming,Instagram,https://www.instagram.com/TGIFURDAY_GROOMING,HTTP Error 429
 TGIFurday Grooming,Website,http://www.instagram.com/TGIFURDAY_GROOMING,HTTP Error 429
@@ -207,6 +205,7 @@ MyX at Holland Village,Instagram,https://www.instagram.com/myx.spaces,HTTP Error
 IPPUDO @One Holland Village,Instagram,https://www.instagram.com/ippudosg,HTTP Error 429
 SHAO 燒 @ Holland Village | Modern Teochew Tapas 潮汕小馆,Instagram,https://instagram.com/shaotapas,HTTP Error 429
 87 Just Thai Holland Village,Instagram,https://www.instagram.com/87justthaikilliney,HTTP Error 429
+87 Just Thai Holland Village,Website,https://87justthai.com/,URL Error: [Errno -2] Name or service not known
 Madrinaa Italiano,Instagram,https://www.instagram.com/madrinaa.sg/,HTTP Error 429
 Les Bouchons Steakhouse Rochester,Instagram,https://www.instagram.com/lesbouchonsg,HTTP Error 429
 Lee's Taiwanese,Instagram,https://www.instagram.com/leestaiwanese/,HTTP Error 429
@@ -234,6 +233,7 @@ Choupinette,Instagram,https://www.instagram.com/choupinette_sg/,HTTP Error 429
 Chicken Pie Kitchen & Don Signature Crab,Instagram,https://instagram.com/chickenpiekitchen,HTTP Error 429
 HUE restaurant,Instagram,https://www.instagram.com/hue.restaurant,HTTP Error 429
 YOUNGS Restaurant & Bar (Oval - Seletar),Instagram,https://www.instagram.com/youngsbarsg/,HTTP Error 429
+Fusion Spoon at Botanic Gardens,Website,https://www.nparks.gov.sg/sbg/shop-and-dine/food-and-beverage/fusion-spoon,HTTP Error 404
 Le Jardin Cafe | Fort Canning,Instagram,https://www.instagram.com/lejardinsingapore,HTTP Error 429
 Canopy Esplanade,Instagram,https://www.instagram.com/canopygardendining,HTTP Error 429
 Canopy Esplanade,Website,https://www.canopygardendining.com/location/canopy-esplanade/,HTTP Error 308
